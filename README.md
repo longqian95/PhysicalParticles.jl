@@ -24,6 +24,8 @@ using Pkg; Pkg.add("PhysicalParticles")
 
 ### Physical vectors
 
+1. Use default units
+
 ```julia
 julia> p1 = PosAstro(1.0,2.0,3.0)
 PhysicalVector3D(1.0 kpc, 2.0 kpc, 3.0 kpc)
@@ -34,3 +36,19 @@ PhysicalVector3D(5.0 kpc Gyr^-1, 6.0 kpc Gyr^-1, 7.0 kpc Gyr^-1)
 julia> p2 = p1 + v * 5u"s"
 PhysicalVector3D(3.0856775814913696e19 m, 6.1713551629827375e19 m, 9.257032744474105e19 m)
 ```
+
+2. Manipulate arrays
+
+An example:
+```
+using PhysicalParticles, Unitful, UnitfulAstro
+
+b = rand(3, 10)
+bv = pconvert(b, u"m")
+
+c = rand(3, 10)
+cv = pconvert(c, u"m/s")
+@show bv + cv*10.0u"s"
+```
+
+### a
