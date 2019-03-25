@@ -17,11 +17,11 @@ export
         AbstractPoint2D,
         AbstractPoint3D,
     Point, Point2D, Point3D,
-    Pos, Vel, Acc,
-    PosAstro, VelAstro, AccAstro,
+    Position, Velocity, Acceleration,
+    PositionAstro, VelocityAstro, AccelerationAstro,
 
     PhysicalVector, PhysicalVector2D, PhysicalVector3D,
-    PhysicalParticle, PhysicalParticleAstro,
+    PhysicalParticle, PhysicalParticle2D, PhysicalParticle3D,
 
     getx, gety, getz,
 
@@ -29,42 +29,27 @@ export
 
 
     norm, normalize, normalize!, dot, cross,
+    rotate, rotate_x, rotate_y, rotate_z,
 
     mean,
-    pconvert
-    #peanokey, hilbertsort!
+    min_x, min_y, min_z,
+    max_x, max_y, max_z,
+    #middle_x, middle_y, middle_z,
+    min_coord, max_coord,
+    center_x, center_y, center_z,
+    center,
+
+    pconvert,
+
+    peanokey, hilbertsort!, mssort!
 
 
 abstract type AbstractPoint end
 abstract type AbstractPoint2D <: AbstractPoint end
 abstract type AbstractPoint3D <: AbstractPoint end
 
-# standard 2D point
-struct Point2D <: AbstractPoint2D
-    x::Float64
-    y::Float64
-    Point2D(x::Float64,y::Float64) = new(x, y)
-end
-Point2D() = Point2D(0.0, 0.0)
-
-@inline getx(p::Point2D) = p.x
-@inline gety(p::Point2D) = p.y
-
-# standard 3D point
-struct Point3D <: AbstractPoint3D
-    x::Float64
-    y::Float64
-    z::Float64
-    Point3D(x::Float64,y::Float64,z::Float64) = new(x, y, z)
-end
-Point3D() = Point3D(0.0, 0.0, 0.0)
-
-@inline getx(p::Point3D) = p.x
-@inline gety(p::Point3D) = p.y
-@inline getz(p::Point3D) = p.z
-
-Point(x::Real, y::Real) = Point2D(x, y)
-Point(x::Real, y::Real, z::Real) = Point3D(x, y, z)
+# We support normal support for mathematical applications
+include("./NormalPoints.jl")
 
 ############      Physical Vectors       ###########
 
@@ -73,9 +58,9 @@ struct PhysicalVector2D <: AbstractPoint2D
     y::Quantity
     PhysicalVector2D(x::Quantity,y::Quantity) = new(x, y)
     PhysicalVector2D(x::Real,y::Real, u::Units) = new(x*u, y*u)
+    PhysicalVector2D() = PhysicalVector2D(0.0u"m", 0.0u"m")
+    PhysicalVector2D(u::Units) = PhysicalVector2D(0.0u, 0.0u)
 end
-PhysicalVector2D() = PhysicalVector2D(0.0u"m", 0.0u"m")
-PhysicalVector2D(u::Units) = PhysicalVector2D(0.0u, 0.0u)
 
 @inline getx(p::PhysicalVector2D) = p.x
 @inline gety(p::PhysicalVector2D) = p.y
@@ -86,9 +71,9 @@ struct PhysicalVector3D <: AbstractPoint3D
     z::Quantity
     PhysicalVector3D(x::Quantity,y::Quantity,z::Quantity) = new(x, y, z)
     PhysicalVector3D(x::Real,y::Real,z::Real, u::Units) = new(x*u, y*u, z*u)
+    PhysicalVector3D() = PhysicalVector3D(0.0u"m", 0.0u"m", 0.0u"m")
+    PhysicalVector3D(u::Units) = PhysicalVector3D(0.0u, 0.0u, 0.0u)
 end
-PhysicalVector3D() = PhysicalVector3D(0.0u"m", 0.0u"m", 0.0u"m")
-PhysicalVector3D(u::Units) = PhysicalVector3D(0.0u, 0.0u, 0.0u)
 
 @inline getx(p::PhysicalVector3D) = p.x
 @inline gety(p::PhysicalVector3D) = p.y
@@ -99,57 +84,57 @@ PhysicalVector(x::Real, y::Real, z::Real, u::Units) = PhysicalVector3D(x*u, y*u,
 
 ############      Position       ###########
 
-Pos() = PhysicalVector3D(0.0u"m", 0.0u"m", 0.0u"m")
-Pos(u::Units) = PhysicalVector3D(0.0u, 0.0u, 0.0u)
-Pos(x::Real, y::Real, u::Units) = PhysicalVector2D(x*u, y*u)
-Pos(x::Real, y::Real, z::Real, u::Units) = PhysicalVector3D(x*u, y*u, z*u)
-Pos(x::Real, y::Real) = PhysicalVector2D(x*u"m", y*u"m")
-Pos(x::Real, y::Real, z::Real) = PhysicalVector3D(x*u"m", y*u"m", z*u"m")
+Position() = PhysicalVector3D(0.0u"m", 0.0u"m", 0.0u"m")
+Position(u::Units) = PhysicalVector3D(0.0u, 0.0u, 0.0u)
+Position(x::Real, y::Real, u::Units) = PhysicalVector2D(x*u, y*u)
+Position(x::Real, y::Real, z::Real, u::Units) = PhysicalVector3D(x*u, y*u, z*u)
+Position(x::Real, y::Real) = PhysicalVector2D(x*u"m", y*u"m")
+Position(x::Real, y::Real, z::Real) = PhysicalVector3D(x*u"m", y*u"m", z*u"m")
 
-PosAstro() = PhysicalVector3D(0.0u"kpc", 0.0u"kpc", 0.0u"kpc")
-PosAstro(u::Units) = PhysicalVector3D(0.0u, 0.0u, 0.0u)
-PosAstro(x::Real, y::Real, u::Units) = PhysicalVector2D(x*u, y*u)
-PosAstro(x::Real, y::Real, z::Real, u::Units) = PhysicalVector3D(x*u, y*u, z*u)
-PosAstro(x::Real, y::Real) = PhysicalVector2D(x*u"kpc", y*u"kpc")
-PosAstro(x::Real, y::Real, z::Real) = PhysicalVector3D(x*u"kpc", y*u"kpc", z*u"kpc")
-
-############      Position       ###########
-
-Vel() = PhysicalVector3D(0.0u"m/s", 0.0u"m/s", 0.0u"m/s")
-Vel(u::Units) = PhysicalVector3D(0.0u, 0.0u, 0.0u)
-Vel(x::Real, y::Real, u::Units) = PhysicalVector2D(x*u, y*u)
-Vel(x::Real, y::Real, z::Real, u::Units) = PhysicalVector3D(x*u, y*u, z*u)
-Vel(x::Real, y::Real) = PhysicalVector2D(x*u"m/s", y*u"m/s")
-Vel(x::Real, y::Real, z::Real) = PhysicalVector3D(x*u"m/s", y*u"m/s", z*u"m/s")
-
-VelAstro() = PhysicalVector3D(0.0u"kpc/Gyr", 0.0u"kpc/Gyr", 0.0u"kpc/Gyr")
-VelAstro(u::Units) = PhysicalVector3D(0.0u, 0.0u, 0.0u)
-VelAstro(x::Real, y::Real, u::Units) = PhysicalVector2D(x*u, y*u)
-VelAstro(x::Real, y::Real, z::Real, u::Units) = PhysicalVector3D(x*u, y*u, z*u)
-VelAstro(x::Real, y::Real) = PhysicalVector2D(x*u"kpc/Gyr", y*u"kpc/Gyr")
-VelAstro(x::Real, y::Real, z::Real) = PhysicalVector3D(x*u"kpc/Gyr", y*u"kpc/Gyr", z*u"kpc/Gyr")
+PositionAstro() = PhysicalVector3D(0.0u"kpc", 0.0u"kpc", 0.0u"kpc")
+PositionAstro(u::Units) = PhysicalVector3D(0.0u, 0.0u, 0.0u)
+PositionAstro(x::Real, y::Real, u::Units) = PhysicalVector2D(x*u, y*u)
+PositionAstro(x::Real, y::Real, z::Real, u::Units) = PhysicalVector3D(x*u, y*u, z*u)
+PositionAstro(x::Real, y::Real) = PhysicalVector2D(x*u"kpc", y*u"kpc")
+PositionAstro(x::Real, y::Real, z::Real) = PhysicalVector3D(x*u"kpc", y*u"kpc", z*u"kpc")
 
 ############      Position       ###########
 
-Acc() = PhysicalVector3D(0.0u"m/s^2", 0.0u"m/s^2", 0.0u"m/s^2")
-Acc(u::Units) = PhysicalVector3D(0.0u, 0.0u, 0.0u)
-Acc(x::Real, y::Real, u::Units) = PhysicalVector2D(x*u, y*u)
-Acc(x::Real, y::Real, z::Real, u::Units) = PhysicalVector3D(x*u, y*u, z*u)
-Acc(x::Real, y::Real) = PhysicalVector2D(x*u"m/s^2", y*u"m/s^2")
-Acc(x::Real, y::Real, z::Real) = PhysicalVector3D(x*u"m/s^2", y*u"m/s^2", z*u"m/s^2")
+Velocity() = PhysicalVector3D(0.0u"m/s", 0.0u"m/s", 0.0u"m/s")
+Velocity(u::Units) = PhysicalVector3D(0.0u, 0.0u, 0.0u)
+Velocity(x::Real, y::Real, u::Units) = PhysicalVector2D(x*u, y*u)
+Velocity(x::Real, y::Real, z::Real, u::Units) = PhysicalVector3D(x*u, y*u, z*u)
+Velocity(x::Real, y::Real) = PhysicalVector2D(x*u"m/s", y*u"m/s")
+Velocity(x::Real, y::Real, z::Real) = PhysicalVector3D(x*u"m/s", y*u"m/s", z*u"m/s")
 
-AccAstro() = PhysicalVector3D(0.0u"kpc/Gyr^2", 0.0u"kpc/Gyr^2", 0.0u"kpc/Gyr^2")
-AccAstro(u::Units) = PhysicalVector3D(0.0u, 0.0u, 0.0u)
-AccAstro(x::Real, y::Real, u::Units) = PhysicalVector2D(x*u, y*u)
-AccAstro(x::Real, y::Real, z::Real, u::Units) = PhysicalVector3D(x*u, y*u, z*u)
-AccAstro(x::Real, y::Real) = PhysicalVector2D(x*u"kpc/Gyr^2", y*u"kpc/Gyr^2")
-AccAstro(x::Real, y::Real, z::Real) = PhysicalVector3D(x*u"kpc/Gyr^2", y*u"kpc/Gyr^2", z*u"kpc/Gyr^2")
+VelocityAstro() = PhysicalVector3D(0.0u"kpc/Gyr", 0.0u"kpc/Gyr", 0.0u"kpc/Gyr")
+VelocityAstro(u::Units) = PhysicalVector3D(0.0u, 0.0u, 0.0u)
+VelocityAstro(x::Real, y::Real, u::Units) = PhysicalVector2D(x*u, y*u)
+VelocityAstro(x::Real, y::Real, z::Real, u::Units) = PhysicalVector3D(x*u, y*u, z*u)
+VelocityAstro(x::Real, y::Real) = PhysicalVector2D(x*u"kpc/Gyr", y*u"kpc/Gyr")
+VelocityAstro(x::Real, y::Real, z::Real) = PhysicalVector3D(x*u"kpc/Gyr", y*u"kpc/Gyr", z*u"kpc/Gyr")
+
+############      Acceleration       ###########
+
+Acceleration() = PhysicalVector3D(0.0u"m/s^2", 0.0u"m/s^2", 0.0u"m/s^2")
+Acceleration(u::Units) = PhysicalVector3D(0.0u, 0.0u, 0.0u)
+Acceleration(x::Real, y::Real, u::Units) = PhysicalVector2D(x*u, y*u)
+Acceleration(x::Real, y::Real, z::Real, u::Units) = PhysicalVector3D(x*u, y*u, z*u)
+Acceleration(x::Real, y::Real) = PhysicalVector2D(x*u"m/s^2", y*u"m/s^2")
+Acceleration(x::Real, y::Real, z::Real) = PhysicalVector3D(x*u"m/s^2", y*u"m/s^2", z*u"m/s^2")
+
+AccelerationAstro() = PhysicalVector3D(0.0u"kpc/Gyr^2", 0.0u"kpc/Gyr^2", 0.0u"kpc/Gyr^2")
+AccelerationAstro(u::Units) = PhysicalVector3D(0.0u, 0.0u, 0.0u)
+AccelerationAstro(x::Real, y::Real, u::Units) = PhysicalVector2D(x*u, y*u)
+AccelerationAstro(x::Real, y::Real, z::Real, u::Units) = PhysicalVector3D(x*u, y*u, z*u)
+AccelerationAstro(x::Real, y::Real) = PhysicalVector2D(x*u"kpc/Gyr^2", y*u"kpc/Gyr^2")
+AccelerationAstro(x::Real, y::Real, z::Real) = PhysicalVector3D(x*u"kpc/Gyr^2", y*u"kpc/Gyr^2", z*u"kpc/Gyr^2")
 
 ############      Basic mathematics       ###########
-@inline length(p::AbstractPoint) = 1
-@inline iterate(p::AbstractPoint) = (p,nothing)
-@inline iterate(p::AbstractPoint,st) = nothing
-@inline real(p::AbstractPoint) = p
+@inline length(p::T) where T <: AbstractPoint = 1
+@inline iterate(p::T) where T <: AbstractPoint = (p,nothing)
+@inline iterate(p::T,st) where T <: AbstractPoint = nothing
+@inline real(p::T) where T <: AbstractPoint = p
 
 # 2D
 @inline +(p1::PhysicalVector2D, p2::PhysicalVector2D) = PhysicalVector2D(p1.x+p2.x, p1.y+p2.y)
@@ -199,6 +184,14 @@ AccAstro(x::Real, y::Real, z::Real) = PhysicalVector3D(x*u"kpc/Gyr^2", y*u"kpc/G
 @inline normalize(p::PhysicalVector2D) = (n = norm(p); return PhysicalVector(p.x/n, p.y/n, p.z/n))
 @inline normalize!(p::PhysicalVector2D) = (n = norm(p); p.x /= n; p.y /= n; p.z /= n)
 
+@inline rotate_z(p::PhysicalVector2D, theta::Float64) = PhysicalVector2D(p.x*cos(theta)-p.y*sin(theta), p.x*sin(theta)+p.y*cos(theta))
+@inline rotate(p::PhysicalVector2D, theta::Float64) = rotate_z(p, theta)
+
+@inline rotate_x(p::PhysicalVector3D, theta::Float64) = PhysicalVector3D(p.x, p.y*cos(theta)-p.z*sin(theta), p.y*sin(theta)+p.z*cos(theta))
+@inline rotate_y(p::PhysicalVector3D, theta::Float64) = PhysicalVector3D(p.x*cos(theta)+p.z*sin(theta), p.y, -p.x*sin(theta)+p.z*cos(theta))
+@inline rotate_z(p::PhysicalVector3D, theta::Float64) = PhysicalVector3D(p.x*cos(theta)-p.y*sin(theta), p.x*sin(theta)+p.y*cos(theta))
+
+"Computes the mean vector of an array of vectors"
 function mean(a::Array{PhysicalVector3D})
     len = length(a)
     p = PhysicalVector3D()
@@ -217,6 +210,7 @@ function mean(a::Array{PhysicalVector2D})
     return p/len
 end
 
+"Converts Number array to PhysicalVector array"
 function pconvert(a::Array{Float64,1})
     if length(a) == 3
         return PhysicalVector3D(a[1], a[2], a[3], u"m")
@@ -227,7 +221,7 @@ function pconvert(a::Array{Float64,1})
     end
 end
 
-function pconvert(a::Array{Float64,1}, u)
+function pconvert(a::Array{Float64,1}, u::Units)
     if length(a) == 3
         return PhysicalVector3D(a[1], a[2], a[3], u)
     elseif length(a) == 2
@@ -237,7 +231,7 @@ function pconvert(a::Array{Float64,1}, u)
     end
 end
 
-function pconvert(a::Array{Float64,2}, u)
+function pconvert(a::Array{Float64,2}, u::Units)
     row, col = size(a)
     if row == 3
         p = rand(PhysicalVector3D,0)
@@ -256,7 +250,423 @@ function pconvert(a::Array{Float64,2}, u)
     end
 end
 
+function min_x(a::Array{T,1}) where T <: AbstractPoint
+    min = a[1].x
+    for p in a
+        if min > p.x
+            min = p.x
+        end
+    end
+    return min
+end
+
+function min_y(a::Array{T,1}) where T <: AbstractPoint
+    min = a[1].y
+    for p in a
+        if min > p.y
+            min = p.y
+        end
+    end
+    return min
+end
+
+function min_z(a::Array{T,1}) where T <: AbstractPoint3D
+    min = a[1].z
+    for p in a
+        if min > p.z
+            min = p.z
+        end
+    end
+    return min
+end
+
+function max_x(a::Array{T,1}) where T <: AbstractPoint
+    max = a[1].x
+    for p in a
+        if max < p.x
+            max = p.x
+        end
+    end
+    return max
+end
+
+function max_y(a::Array{T,1}) where T <: AbstractPoint
+    max = a[1].y
+    for p in a
+        if max < p.y
+            max = p.y
+        end
+    end
+    return max
+end
+
+function max_z(a::Array{T,1}) where T <: AbstractPoint3D
+    max = a[1].z
+    for p in a
+        if max < p.z
+            max = p.z
+        end
+    end
+    return max
+end
+
+function center_x(a::Array{T,1}) where T <: AbstractPoint
+    left = min_x(a)
+    right = max_x(a)
+    return (left + right) / 2.0
+end
+
+function center_y(a::Array{T,1}) where T <: AbstractPoint
+    left = min_y(a)
+    right = max_y(a)
+    return (left + right) / 2.0
+end
+
+function center_z(a::Array{T,1}) where T <: AbstractPoint3D
+    left = min_z(a)
+    right = max_z(a)
+    return (left + right) / 2.0
+end
+
+function center(a::Array{T,1}) where T <: AbstractPoint2D
+    x = center_x(a)
+    y = center_y(a)
+    return typeof(a[1])(x,y)
+end
+
+function center(a::Array{T,1}) where T <: AbstractPoint3D
+    x = center_x(a)
+    y = center_y(a)
+    z = center_z(a)
+    return typeof(a[1])(x,y,z)
+end
+
 ############      Physical Particles       ###########
+mutable struct PhysicalParticle2D
+    Pos::Array{PhysicalVector2D,1}
+    Vel::Array{PhysicalVector2D,1}
+    Acc::Array{PhysicalVector2D,1}
+    Mass::Array{Float64,1}
+    ID::Array{Int64,1}
+    Type::Array{Int64,1}
+    PhysicalParticle2D() = PhysicalParticle2D([],[],[],[],[],[])
+end
+
+mutable struct PhysicalParticle3D
+    Pos::Array{PhysicalVector3D,1}
+    Vel::Array{PhysicalVector3D,1}
+    Acc::Array{PhysicalVector3D,1}
+    Mass::Array{Float64,1}
+    ID::Array{Int64,1}
+    Type::Array{Int64,1}
+    PhysicalParticle3D() = PhysicalParticle3D([],[],[],[],[],[])
+end
+
+PhysicalParticle = PhysicalParticle3D
 
 
+############      Peano-Hilbert       ###########
+# Copied from GeometicalPredicates.jl and referred to Gadget2
+
+# number of bits to use per dimension in calculating the peano-key
+const peano_2D_bits = 31
+const peano_3D_bits = 21
+
+# implementing 2D scale dependednt Peano-Hilbert indexing
+
+ _extract_peano_bin_num(nbins::Int64, n::Float64) = trunc(Integer, (n-1)*nbins )
+
+# calculate peano key for given point
+function peanokey(p::PhysicalVector2D, bits::Int64=peano_2D_bits)
+    n = 1 << bits
+    s = n >> 1; d = 0
+    x = _extract_peano_bin_num(n, ustrip(Float64, u, p.x))
+    y = _extract_peano_bin_num(n, ustrip(Float64, u, p.y))
+    while true
+        rx = (x & s) > 0
+        ry = (y & s) > 0
+        d += s * s * xor(3 * rx, ry)
+        s = s >> 1
+        (s == 0) && break
+        if ry == 0
+            if rx == 1
+                x = n - 1 - x;
+                y = n - 1 - y;
+            end
+            x, y = y, x
+        end
+    end
+end
+
+# implementing 3D scaleful Peano-Hilbert indexing
+const quadrants_arr = [
+  0, 7, 1, 6, 3, 4, 2, 5,
+  7, 4, 6, 5, 0, 3, 1, 2,
+  4, 3, 5, 2, 7, 0, 6, 1,
+  3, 0, 2, 1, 4, 7, 5, 6,
+  1, 0, 6, 7, 2, 3, 5, 4,
+  0, 3, 7, 4, 1, 2, 6, 5,
+  3, 2, 4, 5, 0, 1, 7, 6,
+  2, 1, 5, 6, 3, 0, 4, 7,
+  6, 1, 7, 0, 5, 2, 4, 3,
+  1, 2, 0, 3, 6, 5, 7, 4,
+  2, 5, 3, 4, 1, 6, 0, 7,
+  5, 6, 4, 7, 2, 1, 3, 0,
+  7, 6, 0, 1, 4, 5, 3, 2,
+  6, 5, 1, 2, 7, 4, 0, 3,
+  5, 4, 2, 3, 6, 7, 1, 0,
+  4, 7, 3, 0, 5, 6, 2, 1,
+  6, 7, 5, 4, 1, 0, 2, 3,
+  7, 0, 4, 3, 6, 1, 5, 2,
+  0, 1, 3, 2, 7, 6, 4, 5,
+  1, 6, 2, 5, 0, 7, 3, 4,
+  2, 3, 1, 0, 5, 4, 6, 7,
+  3, 4, 0, 7, 2, 5, 1, 6,
+  4, 5, 7, 6, 3, 2, 0, 1,
+  5, 2, 6, 1, 4, 3, 7, 0]
+quadrants(a::Int64, b::Int64, c::Int64, d::Int64) = (@inbounds x = quadrants_arr[1+a<<3+b<<2+c<<1+d]; x)
+rotxmap_table = [4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 0, 1, 2, 3, 17, 18, 19, 16, 23, 20, 21, 22]
+rotymap_table = [1, 2, 3, 0, 16, 17, 18, 19, 11, 8, 9, 10, 22, 23, 20, 21, 14, 15, 12, 13, 4, 5, 6, 7]
+rotx_table = [3, 0, 0, 2, 2, 0, 0, 1]
+roty_table = [0, 1, 1, 2, 2, 3, 3, 0]
+sense_table = [-1, -1, -1, +1, +1, -1, -1, -1]
+
+function peanokey(p::PhysicalVector3D, u::Units, bits::Int64=peano_3D_bits)
+    n = 1 << bits
+    x = _extract_peano_bin_num(n, ustrip(Float64, u, p.x))
+    y = _extract_peano_bin_num(n, ustrip(Float64, u, p.y))
+    z = _extract_peano_bin_num(n, ustrip(Float64, u, p.z))
+    mask = 1 << (bits - 1)
+    key = 0
+    rotation = 0
+    sense = 1
+    for i in 1:bits
+        bitx = (x & mask > 0) ? 1 : 0
+        bity = (y & mask > 0) ? 1 : 0
+        bitz = (z & mask > 0) ? 1 : 0
+
+        quad = quadrants(rotation, bitx, bity, bitz)
+
+        key <<= 3
+        key += sense == 1 ? quad : 7-quad
+
+        @inbounds rotx = rotx_table[quad+1]
+        @inbounds roty = roty_table[quad+1]
+        @inbounds sense *= sense_table[quad+1]
+
+        while rotx > 0
+            @inbounds rotation = rotxmap_table[rotation+1]
+            rotx -= 1
+        end
+
+        while(roty > 0)
+            @inbounds rotation = rotymap_table[rotation+1]
+            roty -= 1
+        end
+        mask >>= 1
+    end
+
+    key
+end
+
+# implementing scale-free Hilbert ordering. Real all about it here:
+# http://doc.cgal.org/latest/Spatial_sorting/index.html
+
+abstract type AbstractCoordinate end
+mutable struct CoordinateX <: AbstractCoordinate end
+mutable struct CoordinateY <: AbstractCoordinate end
+mutable struct CoordinateZ <: AbstractCoordinate end
+const coordinatex = CoordinateX()
+const coordinatey = CoordinateY()
+const coordinatez = CoordinateZ()
+next2d(::CoordinateX) = coordinatey
+next2d(::CoordinateY) = coordinatex
+next3d(::CoordinateX) = coordinatey
+next3d(::CoordinateY) = coordinatez
+next3d(::CoordinateZ) = coordinatex
+nextnext3d(::CoordinateX) = coordinatez
+nextnext3d(::CoordinateY) = coordinatex
+nextnext3d(::CoordinateZ) = coordinatey
+
+abstract type AbstractDirection end
+mutable struct Forward <: AbstractDirection end
+mutable struct Backward <: AbstractDirection end
+const forward = Forward()
+const backward = Backward()
+Base.:!(::Forward) = backward
+Base.:!(::Backward) = forward
+
+compare(::Forward, ::CoordinateX, p1::AbstractPoint, p2::AbstractPoint) = getx(p1) < getx(p2)
+compare(::Backward, ::CoordinateX, p1::AbstractPoint, p2::AbstractPoint) = getx(p1) > getx(p2)
+compare(::Forward, ::CoordinateY, p1::AbstractPoint, p2::AbstractPoint) = gety(p1) < gety(p2)
+compare(::Backward, ::CoordinateY, p1::AbstractPoint, p2::AbstractPoint) = gety(p1) > gety(p2)
+compare(::Forward, ::CoordinateZ, p1::AbstractPoint, p2::AbstractPoint) = getz(p1) < getz(p2)
+compare(::Backward, ::CoordinateZ, p1::AbstractPoint, p2::AbstractPoint) = getz(p1) > getz(p2)
+
+function select!(direction::AbstractDirection, coordinate::AbstractCoordinate, v::Array{T,1}, k::Int, lo::Int, hi::Int) where T<:AbstractPoint
+    lo <= k <= hi || error("select index $k is out of range $lo:$hi")
+    @inbounds while lo < hi
+        if hi-lo == 1
+            if compare(direction, coordinate, v[hi], v[lo])
+                v[lo], v[hi] = v[hi], v[lo]
+            end
+            return v[k]
+        end
+        pivot = v[(lo+hi)>>>1]
+        i, j = lo, hi
+        while true
+            while compare(direction, coordinate, v[i], pivot); i += 1; end
+            while compare(direction, coordinate, pivot, v[j]); j -= 1; end
+            i <= j || break
+            v[i], v[j] = v[j], v[i]
+            i += 1; j -= 1
+        end
+        if k <= j
+            hi = j
+        elseif i <= k
+            lo = i
+        else
+            return pivot
+        end
+    end
+    return v[lo]
+end
+
+function hilbertsort!(directionx::AbstractDirection, directiony::AbstractDirection, coordinate::AbstractCoordinate, a::Array{T,1}, lo::Int64, hi::Int64, lim::Int64=4) where T<:AbstractPoint2D
+    hi-lo <= lim && return a
+
+    i2 = (lo+hi)>>>1
+    i1 = (lo+i2)>>>1
+    i3 = (i2+hi)>>>1
+
+    select!(directionx, coordinate, a, i2, lo, hi)
+    select!(directiony, next2d(coordinate), a, i1, lo, i2)
+    select!(!directiony, next2d(coordinate), a, i3, i2, hi)
+
+    hilbertsort!(directiony, directionx, next2d(coordinate), a, lo, i1, lim)
+    hilbertsort!(directionx, directiony, coordinate, a, i1, i2, lim)
+    hilbertsort!(directionx, directiony, coordinate, a, i2, i3, lim)
+    hilbertsort!(!directiony, !directionx, next2d(coordinate), a, i3, hi, lim)
+
+    return a
+end
+
+function hilbertsort!(directionx::AbstractDirection, directiony::AbstractDirection, directionz::AbstractDirection, coordinate::AbstractCoordinate, a::Array{T,1}, lo::Int64, hi::Int64, lim::Int64=8) where T<:AbstractPoint3D
+    hi-lo <= lim && return a
+
+    i4 = (lo+hi)>>>1
+    i2 = (lo+i4)>>>1
+    i1 = (lo+i2)>>>1
+    i3 = (i2+i4)>>>1
+    i6 = (i4+hi)>>>1
+    i5 = (i4+i6)>>>1
+    i7 = (i6+hi)>>>1
+
+    select!(directionx, coordinate, a, i4, lo, hi)
+    select!(directiony, next3d(coordinate), a, i2, lo, i4)
+    select!(directionz, nextnext3d(coordinate), a, i1, lo, i2)
+    select!(!directionz, nextnext3d(coordinate), a, i3, i2, i4)
+    select!(!directiony, next3d(coordinate), a, i6, i4, hi)
+    select!(directionz, nextnext3d(coordinate), a, i5, i4, i6)
+    select!(!directionz, nextnext3d(coordinate), a, i7, i6, hi)
+
+    hilbertsort!( directionz,  directionx,  directiony, nextnext3d(coordinate), a, lo, i1, lim)
+    hilbertsort!( directiony,  directionz,  directionx, next3d(coordinate),     a, i1, i2, lim)
+    hilbertsort!( directiony,  directionz,  directionx, next3d(coordinate),     a, i2, i3, lim)
+    hilbertsort!( directionx, !directiony, !directionz, coordinate,             a, i3, i4, lim)
+    hilbertsort!( directionx, !directiony, !directionz, coordinate,             a, i4, i5, lim)
+    hilbertsort!(!directiony,  directionz, !directionx, next3d(coordinate),     a, i5, i6, lim)
+    hilbertsort!(!directiony,  directionz, !directionx, next3d(coordinate),     a, i6, i7, lim)
+    hilbertsort!(!directionz, !directionx,  directiony, nextnext3d(coordinate), a, i7, hi, lim)
+
+    return a
+end
+
+hilbertsort!(a::Array{T,1}) where {T<:AbstractPoint2D} = hilbertsort!(backward, backward, coordinatey, a, 1, length(a))
+hilbertsort!(a::Array{T,1}, lo::Int64, hi::Int64, lim::Int64) where {T<:AbstractPoint2D} = hilbertsort!(backward, backward, coordinatey, a, lo, hi, lim)
+hilbertsort!(a::Array{T,1}) where {T<:AbstractPoint3D} = hilbertsort!(backward, backward, backward, coordinatez, a, 1, length(a))
+hilbertsort!(a::Array{T,1}, lo::Int64, hi::Int64, lim::Int64) where {T<:AbstractPoint3D} = hilbertsort!(backward, backward, backward, coordinatey, a, lo, hi, lim)
+
+# multi-scale sort. Read all about it here:
+# http://doc.cgal.org/latest/Spatial_sorting/classCGAL_1_1Multiscale__sort.html
+function _mssort!(a::Array{T,1}, lim_ms::Int64, lim_hl::Int64, rat::Float64) where T<:AbstractPoint
+    hi = length(a)
+    lo = 1
+    while true
+        lo = hi - round(Int, (1-rat)*hi)
+        hi-lo <= lim_ms && return a
+        hilbertsort!(a, lo, hi, lim_hl)
+        hi = lo-1
+    end
+    return a
+end
+
+# Utility methods, setting some different defaults for 2D and 3D. These are exported
+mssort!(a::Array{T,1}; lim_ms::Int64=16, lim_hl::Int64=4, rat::Float64=0.25) where {T<:AbstractPoint2D} =
+    _mssort!(a, lim_ms, lim_hl, rat)
+mssort!(a::Array{T,1}; lim_ms::Int64=64, lim_hl::Int64=8, rat::Float64=0.125) where {T<:AbstractPoint3D} =
+    _mssort!(a, lim_ms, lim_hl, rat)
+
+
+### Normal Points
+
+function peanokey(p::Point2D, bits::Int64=peano_2D_bits)
+    n = 1 << bits
+    s = n >> 1; d = 0
+    x = _extract_peano_bin_num(n, getx(p))
+    y = _extract_peano_bin_num(n, gety(p))
+    while true
+        rx = (x & s) > 0
+        ry = (y & s) > 0
+        d += s * s * xor(3 * rx, ry)
+        s = s >> 1
+        (s == 0) && break
+        if ry == 0
+            if rx == 1
+                x = n - 1 - x;
+                y = n - 1 - y;
+            end
+            x, y = y, x
+        end
+    end
+    d
+end
+
+function peanokey(p::Point3D, bits::Int64=peano_3D_bits)
+    n = 1 << bits
+    x = _extract_peano_bin_num(n, getx(p))
+    y = _extract_peano_bin_num(n, gety(p))
+    z = _extract_peano_bin_num(n, getz(p))
+    mask = 1 << (bits - 1)
+    key = 0
+    rotation = 0
+    sense = 1
+    for i in 1:bits
+        bitx = (x & mask > 0) ? 1 : 0
+        bity = (y & mask > 0) ? 1 : 0
+        bitz = (z & mask > 0) ? 1 : 0
+
+        quad = quadrants(rotation, bitx, bity, bitz)
+
+        key <<= 3
+        key += sense == 1 ? quad : 7-quad
+
+        @inbounds rotx = rotx_table[quad+1]
+        @inbounds roty = roty_table[quad+1]
+        @inbounds sense *= sense_table[quad+1]
+
+        while rotx > 0
+            @inbounds rotation = rotxmap_table[rotation+1]
+            rotx -= 1
+        end
+
+        while(roty > 0)
+            @inbounds rotation = rotymap_table[rotation+1]
+            roty -= 1
+        end
+        mask >>= 1
+    end
+
+    key
+end
 end  # module PhysicalParticles
