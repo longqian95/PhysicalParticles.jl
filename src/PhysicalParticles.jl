@@ -579,7 +579,8 @@ mutable struct GasParticle3D <: AbstractParticle3D
 end
 
 ############      Constants      ###########
-
+@constant(H, "Hubble constant", 74.03, BigFloat(74.03),
+          u"km/s/Mpc", 1.42, BigFloat(1.42), "Hubble Space Telescope 2019-03-18")
 struct PhysicalConstant
     c::Constant # light speed
     G::Constant # Newtonian constant of gravitation
@@ -590,18 +591,16 @@ struct PhysicalConstant
     m_p::Constant # Protron mass
     stefan_boltzmann::Constant # Stefan-Boltzmann constant
     H::Constant # Hubble constant
-    PhysicalConstant() = PhysicalConstant(CODATA2014.c,
-                                          CODATA2014.G,
-                                          CODATA2014.h,
-                                          CODATA2014.e,
-                                          CODATA2014.m_e,
-                                          CODATA2014.m_n,
-                                          CODATA2014.m_p,
-                                          CODATA2014.σ,
-                                          Constant(H, "Hubble constant", 74.03, BigFloat(74.03),
-                                                    u"km/s/Mpc", 1.42, BigFloat(1.42), "Hubble Space Telescope 2019-03-18") # Wiki, 2019-03-18
-                                          )
 end
+PhysicalConstant() = PhysicalConstant(CODATA2014.c,
+                                      CODATA2014.G,
+                                      CODATA2014.h,
+                                      CODATA2014.e,
+                                      CODATA2014.m_e,
+                                      CODATA2014.m_n,
+                                      CODATA2014.m_p,
+                                      CODATA2014.σ,
+                                      H)
 
 ############      Peano-Hilbert       ###########
 # Copied from GeometicalPredicates.jl and referred to Gadget2
