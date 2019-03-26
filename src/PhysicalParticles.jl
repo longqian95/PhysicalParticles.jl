@@ -28,20 +28,22 @@ export
 
     +,-,*,/,zero,length,iterate,
 
-
+    # Linear Algebra
     norm, normalize, dot, cross,
     rotate, rotate_x, rotate_y, rotate_z,
 
+    # Simulation Box
     mean,
     min_x, min_y, min_z,
     max_x, max_y, max_z,
-    #middle_x, middle_y, middle_z,
     min_coord, max_coord,
     center_x, center_y, center_z,
     center,
 
+    # Convert array to points
     pconvert, npconvert,
 
+    # Peano-Hilbert algorithms
     peanokey, hilbertsort!, mssort!
 
 
@@ -53,40 +55,118 @@ abstract type AbstractPoint3D <: AbstractPoint end
 include("./NormalPoints.jl")
 
 ############      Physical Vectors       ###########
+"""
+    struct PhysicalVector2D <: AbstractPoint2D
 
+        Fields
+        ≡≡≡≡≡≡≡≡
+
+        x :: Quantity
+        y :: Quantity
+"""
 struct PhysicalVector2D <: AbstractPoint2D
     x::Quantity
     y::Quantity
     PhysicalVector2D(x::Quantity,y::Quantity) = new(x, y)
     PhysicalVector2D(x::Real,y::Real, u::Units=u"m") = new(x*u, y*u)
-    PhysicalVector2D() = PhysicalVector2D(0.0u"m", 0.0u"m")
-    PhysicalVector2D(u::Units) = PhysicalVector2D(0.0u, 0.0u)
 end
+
+"""
+    Constructors of struct PhysicalVector2D <: AbstractPoint2D
+        Default unit: "m"
+
+        PhysicalVector2D() -------------- Returns a zero vector
+        PhysicalVector2D(u::Units) ------ Returns a zero vector
+        PhysicalVector2D(x::Quantity,y::Quantity)
+        PhysicalVector2D(x::Real,y::Real, u::Units=u"m")
+
+        Examples
+        ≡≡≡≡≡≡≡≡≡≡
+
+        julia> PhysicalVector2D()
+        PhysicalVector2D(0.0 m, 0.0 m)
+
+        julia> a = PhysicalVector2D(1.0, 2.0)
+        PhysicalVector2D(1.0 m, 2.0 m)
+
+        julia> b = PhysicalVector2D(3,4,u"km")
+        PhysicalVector2D(3 km, 4 km)
+
+        julia> a+b
+        PhysicalVector2D(3001.0 m, 4002.0 m)
+
+        julia> norm(a)
+        2.23606797749979 m
+"""
+PhysicalVector2D() = PhysicalVector2D(0.0u"m", 0.0u"m")
+PhysicalVector2D(u::Units) = PhysicalVector2D(0.0u, 0.0u)
 
 @inline getx(p::PhysicalVector2D) = p.x
 @inline gety(p::PhysicalVector2D) = p.y
 
+"""
+    struct PhysicalVector3D <: AbstractPoint3D
+
+        Fields
+        ≡≡≡≡≡≡≡≡
+
+        x :: Quantity
+        y :: Quantity
+        z :: Quantity
+"""
 struct PhysicalVector3D <: AbstractPoint3D
     x::Quantity
     y::Quantity
     z::Quantity
     PhysicalVector3D(x::Quantity,y::Quantity,z::Quantity) = new(x, y, z)
     PhysicalVector3D(x::Real,y::Real,z::Real, u::Units=u"m") = new(x*u, y*u, z*u)
-    PhysicalVector3D() = PhysicalVector3D(0.0u"m", 0.0u"m", 0.0u"m")
-    PhysicalVector3D(u::Units=u"m") = PhysicalVector3D(0.0u, 0.0u, 0.0u)
 end
+
+"""
+    Constructors of struct PhysicalVector3D <: AbstractPoint3D
+        Default unit: "m"
+
+        PhysicalVector3D() -------------- Returns a zero vector
+        PhysicalVector3D(u::Units) ------ Returns a zero vector
+        PhysicalVector3D(x::Quantity,y::Quantity,z::Quantity)
+        PhysicalVector3D(x::Real,y::Real,z::Real, u::Units=u"m")
+
+        Examples
+        ≡≡≡≡≡≡≡≡≡≡
+
+        julia> PhysicalVector3D()
+        PhysicalVector3D(0.0 m, 0.0 m, 0.0 m)
+
+        julia> a = PhysicalVector3D(1.0,2.0,3.0)
+        PhysicalVector3D(1.0 m, 2.0 m, 3.0 m)
+
+        julia> b = PhysicalVector3D(4.0,5.0,6.0, u"kpc")
+        PhysicalVector3D(4.0 kpc, 5.0 kpc, 6.0 kpc)
+
+        julia> a+b
+        PhysicalVector3D(1.2342710325965468e20 m, 1.5428387907456834e20 m, 1.8514065488948203e20 m)
+"""
+PhysicalVector3D() = PhysicalVector3D(0.0u"m", 0.0u"m", 0.0u"m")
+PhysicalVector3D(u::Units) = PhysicalVector3D(0.0u, 0.0u, 0.0u)
 
 @inline getx(p::PhysicalVector3D) = p.x
 @inline gety(p::PhysicalVector3D) = p.y
 @inline getz(p::PhysicalVector3D) = p.z
 
+"""
+    Returns physical vectors
+
+    PhysicalVector(x::Quantity, y::Quantity) = PhysicalVector2D(x,y)
+    PhysicalVector(x::Real, y::Real, u::Units) = PhysicalVector2D(x*u, y*u)
+    PhysicalVector(x::Quantity, y::Quantity, z::Quantity) = PhysicalVector3D(x,y,z)
+    PhysicalVector(x::Real, y::Real, z::Real, u::Units) = PhysicalVector3D(x*u, y*u, z*u)
+"""
 PhysicalVector(x::Quantity, y::Quantity) = PhysicalVector2D(x,y)
 PhysicalVector(x::Real, y::Real, u::Units) = PhysicalVector2D(x*u, y*u)
 PhysicalVector(x::Quantity, y::Quantity, z::Quantity) = PhysicalVector3D(x,y,z)
 PhysicalVector(x::Real, y::Real, z::Real, u::Units) = PhysicalVector3D(x*u, y*u, z*u)
 
 ############      Position       ###########
-
 Position() = PhysicalVector3D(0.0u"m", 0.0u"m", 0.0u"m")
 Position(u::Units=u"m") = PhysicalVector3D(0.0u, 0.0u, 0.0u)
 Position(x::Real, y::Real, u::Units=u"m") = PhysicalVector2D(x*u, y*u)
@@ -249,6 +329,7 @@ function pconvert(a::Array{Float64,2}, u::Units)
     end
 end
 
+"Returns the minimum x value of an array of points"
 function min_x(a::Array{T,1}) where T <: AbstractPoint
     min = a[1].x
     for p in a
@@ -259,6 +340,7 @@ function min_x(a::Array{T,1}) where T <: AbstractPoint
     return min
 end
 
+"Returns the minimum y value of an array of points"
 function min_y(a::Array{T,1}) where T <: AbstractPoint
     min = a[1].y
     for p in a
@@ -269,6 +351,7 @@ function min_y(a::Array{T,1}) where T <: AbstractPoint
     return min
 end
 
+"Returns the minimum z value of an array of points"
 function min_z(a::Array{T,1}) where T <: AbstractPoint3D
     min = a[1].z
     for p in a
@@ -279,6 +362,7 @@ function min_z(a::Array{T,1}) where T <: AbstractPoint3D
     return min
 end
 
+"Returns the maximum x value of an array of points"
 function max_x(a::Array{T,1}) where T <: AbstractPoint
     max = a[1].x
     for p in a
@@ -289,6 +373,7 @@ function max_x(a::Array{T,1}) where T <: AbstractPoint
     return max
 end
 
+"Returns the maximum y value of an array of points"
 function max_y(a::Array{T,1}) where T <: AbstractPoint
     max = a[1].y
     for p in a
@@ -299,6 +384,7 @@ function max_y(a::Array{T,1}) where T <: AbstractPoint
     return max
 end
 
+"Returns the maximum z value of an array of points"
 function max_z(a::Array{T,1}) where T <: AbstractPoint3D
     max = a[1].z
     for p in a
@@ -309,24 +395,28 @@ function max_z(a::Array{T,1}) where T <: AbstractPoint3D
     return max
 end
 
+"Returns x center of the box"
 function center_x(a::Array{T,1}) where T <: AbstractPoint
     left = min_x(a)
     right = max_x(a)
     return (left + right) / 2.0
 end
 
+"Returns y center of the box"
 function center_y(a::Array{T,1}) where T <: AbstractPoint
     left = min_y(a)
     right = max_y(a)
     return (left + right) / 2.0
 end
 
+"Returns z center of the box"
 function center_z(a::Array{T,1}) where T <: AbstractPoint3D
     left = min_z(a)
     right = max_z(a)
     return (left + right) / 2.0
 end
 
+"Returns center of the box"
 function center(a::Array{T,1}) where T <: AbstractPoint2D
     x = center_x(a)
     y = center_y(a)
