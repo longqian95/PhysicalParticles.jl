@@ -58,7 +58,7 @@ struct PhysicalVector2D <: AbstractPoint2D
     x::Quantity
     y::Quantity
     PhysicalVector2D(x::Quantity,y::Quantity) = new(x, y)
-    PhysicalVector2D(x::Real,y::Real, u::Units) = new(x*u, y*u)
+    PhysicalVector2D(x::Real,y::Real, u::Units=u"m") = new(x*u, y*u)
     PhysicalVector2D() = PhysicalVector2D(0.0u"m", 0.0u"m")
     PhysicalVector2D(u::Units) = PhysicalVector2D(0.0u, 0.0u)
 end
@@ -71,63 +71,65 @@ struct PhysicalVector3D <: AbstractPoint3D
     y::Quantity
     z::Quantity
     PhysicalVector3D(x::Quantity,y::Quantity,z::Quantity) = new(x, y, z)
-    PhysicalVector3D(x::Real,y::Real,z::Real, u::Units) = new(x*u, y*u, z*u)
+    PhysicalVector3D(x::Real,y::Real,z::Real, u::Units=u"m") = new(x*u, y*u, z*u)
     PhysicalVector3D() = PhysicalVector3D(0.0u"m", 0.0u"m", 0.0u"m")
-    PhysicalVector3D(u::Units) = PhysicalVector3D(0.0u, 0.0u, 0.0u)
+    PhysicalVector3D(u::Units=u"m") = PhysicalVector3D(0.0u, 0.0u, 0.0u)
 end
 
 @inline getx(p::PhysicalVector3D) = p.x
 @inline gety(p::PhysicalVector3D) = p.y
 @inline getz(p::PhysicalVector3D) = p.z
 
+PhysicalVector(x::Quantity, y::Quantity) = PhysicalVector2D(x,y)
 PhysicalVector(x::Real, y::Real, u::Units) = PhysicalVector2D(x*u, y*u)
+PhysicalVector(x::Quantity, y::Quantity, z::Quantity) = PhysicalVector3D(x,y,z)
 PhysicalVector(x::Real, y::Real, z::Real, u::Units) = PhysicalVector3D(x*u, y*u, z*u)
 
 ############      Position       ###########
 
 Position() = PhysicalVector3D(0.0u"m", 0.0u"m", 0.0u"m")
-Position(u::Units) = PhysicalVector3D(0.0u, 0.0u, 0.0u)
-Position(x::Real, y::Real, u::Units) = PhysicalVector2D(x*u, y*u)
-Position(x::Real, y::Real, z::Real, u::Units) = PhysicalVector3D(x*u, y*u, z*u)
+Position(u::Units=u"m") = PhysicalVector3D(0.0u, 0.0u, 0.0u)
+Position(x::Real, y::Real, u::Units=u"m") = PhysicalVector2D(x*u, y*u)
+Position(x::Real, y::Real, z::Real, u::Units=u"m") = PhysicalVector3D(x*u, y*u, z*u)
 Position(x::Real, y::Real) = PhysicalVector2D(x*u"m", y*u"m")
 Position(x::Real, y::Real, z::Real) = PhysicalVector3D(x*u"m", y*u"m", z*u"m")
 
 PositionAstro() = PhysicalVector3D(0.0u"kpc", 0.0u"kpc", 0.0u"kpc")
-PositionAstro(u::Units) = PhysicalVector3D(0.0u, 0.0u, 0.0u)
-PositionAstro(x::Real, y::Real, u::Units) = PhysicalVector2D(x*u, y*u)
-PositionAstro(x::Real, y::Real, z::Real, u::Units) = PhysicalVector3D(x*u, y*u, z*u)
+PositionAstro(u::Units=u"kpc") = PhysicalVector3D(0.0u, 0.0u, 0.0u)
+PositionAstro(x::Real, y::Real, u::Units=u"kpc") = PhysicalVector2D(x*u, y*u)
+PositionAstro(x::Real, y::Real, z::Real, u::Units=u"kpc") = PhysicalVector3D(x*u, y*u, z*u)
 PositionAstro(x::Real, y::Real) = PhysicalVector2D(x*u"kpc", y*u"kpc")
 PositionAstro(x::Real, y::Real, z::Real) = PhysicalVector3D(x*u"kpc", y*u"kpc", z*u"kpc")
 
 ############      Position       ###########
 
 Velocity() = PhysicalVector3D(0.0u"m/s", 0.0u"m/s", 0.0u"m/s")
-Velocity(u::Units) = PhysicalVector3D(0.0u, 0.0u, 0.0u)
-Velocity(x::Real, y::Real, u::Units) = PhysicalVector2D(x*u, y*u)
-Velocity(x::Real, y::Real, z::Real, u::Units) = PhysicalVector3D(x*u, y*u, z*u)
+Velocity(u::Units=u"m/s") = PhysicalVector3D(0.0u, 0.0u, 0.0u)
+Velocity(x::Real, y::Real, u::Units=u"m/s") = PhysicalVector2D(x*u, y*u)
+Velocity(x::Real, y::Real, z::Real, u::Units=u"m/s") = PhysicalVector3D(x*u, y*u, z*u)
 Velocity(x::Real, y::Real) = PhysicalVector2D(x*u"m/s", y*u"m/s")
 Velocity(x::Real, y::Real, z::Real) = PhysicalVector3D(x*u"m/s", y*u"m/s", z*u"m/s")
 
 VelocityAstro() = PhysicalVector3D(0.0u"kpc/Gyr", 0.0u"kpc/Gyr", 0.0u"kpc/Gyr")
-VelocityAstro(u::Units) = PhysicalVector3D(0.0u, 0.0u, 0.0u)
-VelocityAstro(x::Real, y::Real, u::Units) = PhysicalVector2D(x*u, y*u)
-VelocityAstro(x::Real, y::Real, z::Real, u::Units) = PhysicalVector3D(x*u, y*u, z*u)
+VelocityAstro(u::Units=u"kpc/Gyr") = PhysicalVector3D(0.0u, 0.0u, 0.0u)
+VelocityAstro(x::Real, y::Real, u::Units=u"kpc/Gyr") = PhysicalVector2D(x*u, y*u)
+VelocityAstro(x::Real, y::Real, z::Real, u::Units=u"kpc/Gyr") = PhysicalVector3D(x*u, y*u, z*u)
 VelocityAstro(x::Real, y::Real) = PhysicalVector2D(x*u"kpc/Gyr", y*u"kpc/Gyr")
 VelocityAstro(x::Real, y::Real, z::Real) = PhysicalVector3D(x*u"kpc/Gyr", y*u"kpc/Gyr", z*u"kpc/Gyr")
 
 ############      Acceleration       ###########
 
 Acceleration() = PhysicalVector3D(0.0u"m/s^2", 0.0u"m/s^2", 0.0u"m/s^2")
-Acceleration(u::Units) = PhysicalVector3D(0.0u, 0.0u, 0.0u)
-Acceleration(x::Real, y::Real, u::Units) = PhysicalVector2D(x*u, y*u)
-Acceleration(x::Real, y::Real, z::Real, u::Units) = PhysicalVector3D(x*u, y*u, z*u)
+Acceleration(u::Units=u"m/s^2") = PhysicalVector3D(0.0u, 0.0u, 0.0u)
+Acceleration(x::Real, y::Real, u::Units=u"m/s^2") = PhysicalVector2D(x*u, y*u)
+Acceleration(x::Real, y::Real, z::Real, u::Units=u"m/s^2") = PhysicalVector3D(x*u, y*u, z*u)
 Acceleration(x::Real, y::Real) = PhysicalVector2D(x*u"m/s^2", y*u"m/s^2")
 Acceleration(x::Real, y::Real, z::Real) = PhysicalVector3D(x*u"m/s^2", y*u"m/s^2", z*u"m/s^2")
 
 AccelerationAstro() = PhysicalVector3D(0.0u"kpc/Gyr^2", 0.0u"kpc/Gyr^2", 0.0u"kpc/Gyr^2")
-AccelerationAstro(u::Units) = PhysicalVector3D(0.0u, 0.0u, 0.0u)
-AccelerationAstro(x::Real, y::Real, u::Units) = PhysicalVector2D(x*u, y*u)
-AccelerationAstro(x::Real, y::Real, z::Real, u::Units) = PhysicalVector3D(x*u, y*u, z*u)
+AccelerationAstro(u::Units=u"kpc/Gyr^2") = PhysicalVector3D(0.0u, 0.0u, 0.0u)
+AccelerationAstro(x::Real, y::Real, u::Units=u"kpc/Gyr^2") = PhysicalVector2D(x*u, y*u)
+AccelerationAstro(x::Real, y::Real, z::Real, u::Units=u"kpc/Gyr^2") = PhysicalVector3D(x*u, y*u, z*u)
 AccelerationAstro(x::Real, y::Real) = PhysicalVector2D(x*u"kpc/Gyr^2", y*u"kpc/Gyr^2")
 AccelerationAstro(x::Real, y::Real, z::Real) = PhysicalVector3D(x*u"kpc/Gyr^2", y*u"kpc/Gyr^2", z*u"kpc/Gyr^2")
 
@@ -140,7 +142,7 @@ AccelerationAstro(x::Real, y::Real, z::Real) = PhysicalVector3D(x*u"kpc/Gyr^2", 
 # 2D
 @inline +(p1::PhysicalVector2D, p2::PhysicalVector2D) = PhysicalVector2D(p1.x+p2.x, p1.y+p2.y)
 @inline -(p1::PhysicalVector2D, p2::PhysicalVector2D) = PhysicalVector2D(p1.x-p2.x, p1.y-p2.y)
-@inline *(p1::PhysicalVector2D, p2::PhysicalVector2D) = PhysicalVector2D(p1.x*p2.x + p1.y*p2.y)
+@inline *(p1::PhysicalVector2D, p2::PhysicalVector2D) = p1.x*p2.x + p1.y*p2.y
 @inline +(p1::PhysicalVector2D, a::Quantity) = PhysicalVector2D(p1.x+a, p1.y+a)
 @inline -(p1::PhysicalVector2D, a::Quantity) = PhysicalVector2D(p1.x-a, p1.y-a)
 @inline *(p1::PhysicalVector2D, a::Quantity) = PhysicalVector2D(p1.x*a, p1.y*a)
@@ -153,13 +155,13 @@ AccelerationAstro(x::Real, y::Real, z::Real) = PhysicalVector3D(x*u"kpc/Gyr^2", 
 @inline /(a::Quantity, p::PhysicalVector2D) = PhysicalVector2D(a/p.x, a/p.y)
 @inline *(a::Real, p::PhysicalVector2D) = PhysicalVector2D(a*p.x, a*p.y)
 @inline norm(p::AbstractPoint2D) = sqrt(p.x^2 + p.y^2)
-@inline dot(p1::PhysicalVector2D, p2::PhysicalVector2D) = PhysicalVector2D(p1.x*p2.x + p1.y*p2.y)
+@inline dot(p1::PhysicalVector2D, p2::PhysicalVector2D) = p1.x*p2.x + p1.y*p2.y
 @inline zero(p::PhysicalVector2D) = PhysicalVector2D(p.x*0.0, p.y*0.0)
 
 # 3D
 @inline +(p1::PhysicalVector3D, p2::PhysicalVector3D) = PhysicalVector3D(p1.x+p2.x, p1.y+p2.y, p1.z+p2.z)
 @inline -(p1::PhysicalVector3D, p2::PhysicalVector3D) = PhysicalVector3D(p1.x-p2.x, p1.y-p2.y, p1.z-p2.z)
-@inline *(p1::PhysicalVector3D, p2::PhysicalVector3D) = PhysicalVector3D(p1.x*p2.x + p1.y*p2.y + p1.z*p2.z)
+@inline *(p1::PhysicalVector3D, p2::PhysicalVector3D) = p1.x*p2.x + p1.y*p2.y + p1.z*p2.z
 @inline *(p1::PhysicalVector3D, a::Real) = PhysicalVector3D(p1.x*a, p1.y*a, p1.z*a)
 @inline +(p1::PhysicalVector3D, a::Quantity) = PhysicalVector3D(p1.x+a, p1.y+a, p1.z+a)
 @inline -(p1::PhysicalVector3D, a::Quantity) = PhysicalVector3D(p1.x-a, p1.y-a, p1.z-a)
@@ -173,13 +175,13 @@ AccelerationAstro(x::Real, y::Real, z::Real) = PhysicalVector3D(x*u"kpc/Gyr^2", 
 @inline /(a::Quantity, p::PhysicalVector3D) = PhysicalVector3D(a/p.x, a/p.y, a/p.z)
 @inline *(a::Real, p::PhysicalVector3D) = PhysicalVector3D(a*p.x, a*p.y, a*p.z)
 @inline norm(p::AbstractPoint3D) = sqrt(p.x^2 + p.y^2 + p.z^2)
-@inline dot(p1::PhysicalVector3D, p2::PhysicalVector3D) = PhysicalVector3D(p1.x*p2.x + p1.y*p2.y + p1.z*p2.z)
+@inline dot(p1::PhysicalVector3D, p2::PhysicalVector3D) = p1.x*p2.x + p1.y*p2.y + p1.z*p2.z
 @inline zero(p::PhysicalVector3D) = PhysicalVector3D(p.x*0.0, p.y*0.0, p.z*0.0)
 @inline cross(p1::PhysicalVector3D, p2::PhysicalVector3D) = PhysicalVector3D(p1.y*p2.z-p1.z*p2.y, p1.z*p2.x-p1.x*p2.z, p1.x*p2.y-p1.y*p2.x)
 
 ############      Linear Algebra       ###########
-@inline normalize(p::PhysicalVector2D) = (n = norm(p); return PhysicalVector(p.x/n, p.y/n))
-@inline normalize(p::PhysicalVector3D) = (n = norm(p); return PhysicalVector(p.x/n, p.y/n, p.z/n))
+@inline normalize(p::PhysicalVector2D) = (n = ustrip(norm(p)); return PhysicalVector(p.x/n, p.y/n))
+@inline normalize(p::PhysicalVector3D) = (n = ustrip(norm(p)); return PhysicalVector(p.x/n, p.y/n, p.z/n))
 
 @inline rotate_z(p::PhysicalVector2D, theta::Float64) = PhysicalVector2D(p.x*cos(theta)-p.y*sin(theta), p.x*sin(theta)+p.y*cos(theta))
 @inline rotate(p::PhysicalVector2D, theta::Float64) = rotate_z(p, theta)
@@ -191,8 +193,8 @@ AccelerationAstro(x::Real, y::Real, z::Real) = PhysicalVector3D(x*u"kpc/Gyr^2", 
 "Computes the mean vector of an array of vectors"
 function mean(a::Array{PhysicalVector3D})
     len = length(a)
-    p = PhysicalVector3D()
-    for i in 1:len
+    p = a[1]
+    for i in 2:len
         @inbounds p += a[i]
     end
     return p/len
@@ -200,19 +202,19 @@ end
 
 function mean(a::Array{PhysicalVector2D})
     len = length(a)
-    p = PhysicalVector2D()
-    for i in 1:len
+    p = a[1]
+    for i in 2:len
         @inbounds p += a[i]
     end
     return p/len
 end
 
 "Converts Number array to PhysicalVector array"
-function pconvert(a::Array{Float64,1})
+function pconvert(a::Array{Float64,1}, u::Units)
     if length(a) == 3
-        return PhysicalVector3D(a[1], a[2], a[3], u"m")
+        return PhysicalVector3D(a[1], a[2], a[3], u)
     elseif length(a) == 2
-        return PhysicalVector2D(a[1], a[2], u"m")
+        return PhysicalVector2D(a[1], a[2], u)
     else
         error("Not supported dimension!")
     end
