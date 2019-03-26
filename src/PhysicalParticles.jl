@@ -11,6 +11,7 @@ import Unitful: Units
 import Base: +,-,*,/,zero,length,iterate,
             rand
 import LinearAlgebra: norm, normalize, dot, cross
+import PhysicalConstants: CODATA2014, Constant, @constant
 
 export
     AbstractPoint,
@@ -23,6 +24,12 @@ export
 
     AbstractParticle, AbstractParticle2D, AbstractParticle3D,
     PhysicalParticle, PhysicalParticle2D, PhysicalParticle3D,
+
+    ParticleType,
+    Extent, Extent2D, Extent3D,
+    PhysicalExtent, PhysicalExtent2D, PhysicalExtent3D,
+
+    PhysicalConstant,
 
     getx, gety, getz,
 
@@ -430,32 +437,171 @@ function center(a::Array{T,1}) where T <: AbstractPoint3D
     return typeof(a[1])(x,y,z)
 end
 
+#### Extent
+# Seperate normal points and physical vectors for type stabilization
+struct Extent2D
+    xMin::Float64
+    xMax::Float64
+    yMin::Float64
+    yMax::Float64
+    SideLength::Float64
+    Center::Point2D
+end
+
+struct Extent3D
+    xMin::Float64
+    xMax::Float64
+    yMin::Float64
+    yMax::Float64
+    zMin::Float64
+    zMax::Float64
+    SideLength::Float64
+    Center::Point3D
+end
+
+"Returns extent of normal particles"
+Extent(a::Array{Point2D}) = (xMin=min_x(a); xMax=max_x(a); yMin=min_y(a); yMax=max_y(a);
+                              len=max(xMax-xMin, yMax-yMin);
+                              Center=Point2D(0.5(xMax-xMin), 0.5(yMax-yMin));
+                              return Extent2D(xMin,xMax,yMin,yMax,len,Center))
+
+Extent(a::Array{Point3D}) = (xMin=min_x(a); xMax=max_x(a); yMin=min_y(a); yMax=max_y(a); zMin=min_z(a); zMax=max_z(a);
+                              len=max(xMax-xMin, yMax-yMin, zMax-zMin);
+                              Center=Point3D(0.5(xMax-xMin), 0.5(yMax-yMin), 0.5(zMax-zMin));
+                              return Extent3D(xMin,xMax,yMin,yMax,zMin,zMax,len,Center))
+
+
+
+struct PhysicalExtent2D
+    xMin::Quantity
+    xMax::Quantity
+    yMin::Quantity
+    yMax::Quantity
+    SideLength::Quantity
+    Center::PhysicalVector2D
+end
+
+struct PhysicalExtent3D
+    xMin::Quantity
+    xMax::Quantity
+    yMin::Quantity
+    yMax::Quantity
+    zMin::Quantity
+    zMax::Quantity
+    SideLength::Quantity
+    Center::PhysicalVector3D
+end
+
+"Returns extent of normal particles"
+PhysicalExtent(a::Array{Point2D}) = (xMin=min_x(a); xMax=max_x(a); yMin=min_y(a); yMax=max_y(a);
+                                        len=max(xMax-xMin, yMax-yMin);
+                                        Center=PhysicalVector2D(0.5(xMax-xMin), 0.5(yMax-yMin));
+                                        return PhysicalExtent2D(xMin,xMax,yMin,yMax,len,Center))
+
+PhysicalExtent(a::Array{Point3D}) = (xMin=min_x(a); xMax=max_x(a); yMin=min_y(a); yMax=max_y(a); zMin=min_z(a); zMax=max_z(a);
+                                        len=max(xMax-xMin, yMax-yMin, zMax-zMin);
+                                        Center=PhysicalVector3D(0.5(xMax-xMin), 0.5(yMax-yMin), 0.5(zMax-zMin));
+                                        return PhysicalExtent3D(xMin,xMax,yMin,yMax,zMin,zMax,len,Center))
+
 ############      Physical Particles       ###########
+@enum ParticleType begin
+    gas = 1
+    halo = 2
+    disk = 3
+    bulge = 4
+    star = 5
+    blackhole = 6
+end
+
 abstract type AbstractParticle end
 abstract type AbstractParticle2D <: AbstractParticle end
 abstract type AbstractParticle3D <: AbstractParticle end
-mutable struct PhysicalParticle2D <: AbstractParticle
-    Pos::Array{PhysicalVector2D,1}
-    Vel::Array{PhysicalVector2D,1}
-    Acc::Array{PhysicalVector2D,1}
-    Mass::Array{Float64,1}
-    ID::Array{Int64,1}
-    Type::Array{Int64,1}
-    PhysicalParticle2D() = PhysicalParticle2D([],[],[],[],[],[])
+mutable struct PhysicalParticle2D <: AbstractParticle2D
+    Pos::PhysicalVector2D
+    Vel::PhysicalVector2D
+    Acc::PhysicalVector2D
+    Mass::Quantity
+    ID::Int64
+    Type::ParticleType
 end
 
-mutable struct PhysicalParticle3D <: AbstractParticle
-    Pos::Array{PhysicalVector3D,1}
-    Vel::Array{PhysicalVector3D,1}
-    Acc::Array{PhysicalVector3D,1}
-    Mass::Array{Float64,1}
-    ID::Array{Int64,1}
-    Type::Array{Int64,1}
-    PhysicalParticle3D() = PhysicalParticle3D([],[],[],[],[],[])
+mutable struct PhysicalParticle3D <: AbstractParticle3D
+    Pos::PhysicalVector3D
+    Vel::PhysicalVector3D
+    Acc::PhysicalVector3D
+    Mass::Quantity
+    ID::Int64
+    Type::Int64
 end
 
 PhysicalParticle = PhysicalParticle3D
 
+mutable struct GasParticle2D <: AbstractParticle2D
+    Pos::PhysicalVector2D
+    Vel::PhysicalVector2D
+    Acc::PhysicalVector2D
+    Mass::Quantity
+    ID::Int64
+
+    Entropy::Quantity
+    Density::Quantity
+    Hsml::Quantity
+
+    RotVel::PhysicalVector2D
+    DivVel::Quantity
+    CurlVel::Quantity
+    dHsmlRho::Quantity
+
+    Pressure::Quantity
+    DtEntropy::Quantity
+    MaxSignalVel::Quantity
+end
+
+mutable struct GasParticle3D <: AbstractParticle3D
+    Pos::PhysicalVector3D
+    Vel::PhysicalVector3D
+    Acc::PhysicalVector3D
+    Mass::Quantity
+    ID::Int64
+
+    Entropy::Quantity
+    Density::Quantity
+    Hsml::Quantity
+
+    RotVel::PhysicalVector3D
+    DivVel::Quantity
+    CurlVel::Quantity
+    dHsmlRho::Quantity
+
+    Pressure::Quantity
+    DtEntropy::Quantity
+    MaxSignalVel::Quantity
+end
+
+############      Constants      ###########
+
+struct PhysicalConstant
+    c::Constant # light speed
+    G::Constant # Newtonian constant of gravitation
+    h::Constant # Planck constant
+    e::Constant # Elementary charge
+    m_e::Constant # Electron mass
+    m_n::Constant # Neutron mass
+    m_p::Constant # Protron mass
+    stefan_boltzmann::Constant # Stefan-Boltzmann constant
+    H::Constant # Hubble constant
+    PhysicalConstant() = PhysicalConstant(CODATA2014.c,
+                                          CODATA2014.G,
+                                          CODATA2014.h,
+                                          CODATA2014.e,
+                                          CODATA2014.m_e,
+                                          CODATA2014.m_n,
+                                          CODATA2014.m_p,
+                                          CODATA2014.σ,
+                                          Constant(H, "Hubble constant", 74.03, BigFloat(74.03),
+                                                    u"km/s/Mpc", 1.42, BigFloat(1.42), "Hubble Space Telescope 2019-03-18") # Wiki, 2019-03-18
+                                          )
+end
 
 ############      Peano-Hilbert       ###########
 # Copied from GeometicalPredicates.jl and referred to Gadget2

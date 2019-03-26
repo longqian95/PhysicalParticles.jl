@@ -154,6 +154,8 @@ To be brief we only show examples for PhysicalVector.
             AbstractParticle, AbstractParticle2D, AbstractParticle3D,
             PhysicalParticle, PhysicalParticle2D, PhysicalParticle3D,
 
+            ParticleType,
+
             getx, gety, getz,
 
             +,-,*,/,zero,length,iterate,
