@@ -10,7 +10,7 @@ using Unitful, UnitfulAstro
 import Unitful: Units
 import Base: +,-,*,/,zero,length,iterate,
             rand
-import LinearAlgebra: norm, normalize, normalize!, dot, cross
+import LinearAlgebra: norm, normalize, dot, cross
 
 export
     AbstractPoint,
@@ -19,8 +19,9 @@ export
     Point, Point2D, Point3D,
     Position, Velocity, Acceleration,
     PositionAstro, VelocityAstro, AccelerationAstro,
-
     PhysicalVector, PhysicalVector2D, PhysicalVector3D,
+
+    AbstractParticle, AbstractParticle2D, AbstractParticle3D,
     PhysicalParticle, PhysicalParticle2D, PhysicalParticle3D,
 
     getx, gety, getz,
@@ -28,7 +29,7 @@ export
     +,-,*,/,zero,length,iterate,
 
 
-    norm, normalize, normalize!, dot, cross,
+    norm, normalize, dot, cross,
     rotate, rotate_x, rotate_y, rotate_z,
 
     mean,
@@ -39,7 +40,7 @@ export
     center_x, center_y, center_z,
     center,
 
-    pconvert,
+    pconvert, npconvert,
 
     peanokey, hilbertsort!, mssort!
 
@@ -146,12 +147,11 @@ AccelerationAstro(x::Real, y::Real, z::Real) = PhysicalVector3D(x*u"kpc/Gyr^2", 
 @inline /(p1::PhysicalVector2D, a::Quantity) = PhysicalVector2D(p1.x/a, p1.y/a)
 @inline *(p1::PhysicalVector2D, a::Real) = PhysicalVector2D(p1.x*a, p1.y*a)
 @inline /(p1::PhysicalVector2D, a::Real) = PhysicalVector2D(p1.x/a, p1.y/a)
-@inline +(a::Quantity, p1::PhysicalVector2D) = PhysicalVector2D(p1.x+a, p1.y+a)
-@inline -(a::Quantity, p1::PhysicalVector2D) = PhysicalVector2D(p1.x-a, p1.y-a)
-@inline *(a::Quantity, p1::PhysicalVector2D) = PhysicalVector2D(p1.x*a, p1.y*a)
-@inline /(a::Quantity, p1::PhysicalVector2D) = PhysicalVector2D(p1.x/a, p1.y/a)
-@inline *(a::Real, p1::PhysicalVector2D) = PhysicalVector2D(p1.x*a, p1.y*a)
-@inline /(a::Real, p1::PhysicalVector2D) = PhysicalVector2D(p1.x/a, p1.y/a)
+@inline +(a::Quantity, p::PhysicalVector2D) = PhysicalVector2D(a+p.x, a+p.y)
+@inline -(a::Quantity, p::PhysicalVector2D) = PhysicalVector2D(a-p.x, a-p.y)
+@inline *(a::Quantity, p::PhysicalVector2D) = PhysicalVector2D(a*p.x, a*p.y)
+@inline /(a::Quantity, p::PhysicalVector2D) = PhysicalVector2D(a/p.x, a/p.y)
+@inline *(a::Real, p::PhysicalVector2D) = PhysicalVector2D(a*p.x, a*p.y)
 @inline norm(p::AbstractPoint2D) = sqrt(p.x^2 + p.y^2)
 @inline dot(p1::PhysicalVector2D, p2::PhysicalVector2D) = PhysicalVector2D(p1.x*p2.x + p1.y*p2.y)
 @inline zero(p::PhysicalVector2D) = PhysicalVector2D(p.x*0.0, p.y*0.0)
@@ -167,45 +167,42 @@ AccelerationAstro(x::Real, y::Real, z::Real) = PhysicalVector3D(x*u"kpc/Gyr^2", 
 @inline /(p1::PhysicalVector3D, a::Quantity) = PhysicalVector3D(p1.x/a, p1.y/a, p1.z/a)
 @inline *(p1::PhysicalVector3D, a::Real) = PhysicalVector3D(p1.x*a, p1.y*a, p1.z*a)
 @inline /(p1::PhysicalVector3D, a::Real) = PhysicalVector3D(p1.x/a, p1.y/a, p1.z/a)
-@inline +(a::Quantity, p1::PhysicalVector3D) = PhysicalVector3D(p1.x+a, p1.y+a, p1.z+a)
-@inline -(a::Quantity, p1::PhysicalVector3D) = PhysicalVector3D(p1.x-a, p1.y-a, p1.z-a)
-@inline *(a::Quantity, p1::PhysicalVector3D) = PhysicalVector3D(p1.x*a, p1.y*a, p1.z*a)
-@inline /(a::Quantity, p1::PhysicalVector3D) = PhysicalVector3D(p1.x/a, p1.y/a, p1.z/a)
-@inline *(a::Real, p1::PhysicalVector3D) = PhysicalVector3D(p1.x*a, p1.y*a, p1.z*a)
-@inline /(a::Real, p1::PhysicalVector3D) = PhysicalVector3D(p1.x/a, p1.y/a, p1.z/a)
+@inline +(a::Quantity, p::PhysicalVector3D) = PhysicalVector3D(a+p.x, a+p.y, a+p.z)
+@inline -(a::Quantity, p::PhysicalVector3D) = PhysicalVector3D(a-p.x, a-p.y, a-p.z)
+@inline *(a::Quantity, p::PhysicalVector3D) = PhysicalVector3D(a*p.x, a*p.y, a*p.z)
+@inline /(a::Quantity, p::PhysicalVector3D) = PhysicalVector3D(a/p.x, a/p.y, a/p.z)
+@inline *(a::Real, p::PhysicalVector3D) = PhysicalVector3D(a*p.x, a*p.y, a*p.z)
 @inline norm(p::AbstractPoint3D) = sqrt(p.x^2 + p.y^2 + p.z^2)
 @inline dot(p1::PhysicalVector3D, p2::PhysicalVector3D) = PhysicalVector3D(p1.x*p2.x + p1.y*p2.y + p1.z*p2.z)
 @inline zero(p::PhysicalVector3D) = PhysicalVector3D(p.x*0.0, p.y*0.0, p.z*0.0)
 @inline cross(p1::PhysicalVector3D, p2::PhysicalVector3D) = PhysicalVector3D(p1.y*p2.z-p1.z*p2.y, p1.z*p2.x-p1.x*p2.z, p1.x*p2.y-p1.y*p2.x)
 
 ############      Linear Algebra       ###########
-
-@inline norm(p::PhysicalVector2D) = sqrt(p.x*p.x + p.y*p.y + p.z*p.z)
-@inline normalize(p::PhysicalVector2D) = (n = norm(p); return PhysicalVector(p.x/n, p.y/n, p.z/n))
-@inline normalize!(p::PhysicalVector2D) = (n = norm(p); p.x /= n; p.y /= n; p.z /= n)
+@inline normalize(p::PhysicalVector2D) = (n = norm(p); return PhysicalVector(p.x/n, p.y/n))
+@inline normalize(p::PhysicalVector3D) = (n = norm(p); return PhysicalVector(p.x/n, p.y/n, p.z/n))
 
 @inline rotate_z(p::PhysicalVector2D, theta::Float64) = PhysicalVector2D(p.x*cos(theta)-p.y*sin(theta), p.x*sin(theta)+p.y*cos(theta))
 @inline rotate(p::PhysicalVector2D, theta::Float64) = rotate_z(p, theta)
 
 @inline rotate_x(p::PhysicalVector3D, theta::Float64) = PhysicalVector3D(p.x, p.y*cos(theta)-p.z*sin(theta), p.y*sin(theta)+p.z*cos(theta))
 @inline rotate_y(p::PhysicalVector3D, theta::Float64) = PhysicalVector3D(p.x*cos(theta)+p.z*sin(theta), p.y, -p.x*sin(theta)+p.z*cos(theta))
-@inline rotate_z(p::PhysicalVector3D, theta::Float64) = PhysicalVector3D(p.x*cos(theta)-p.y*sin(theta), p.x*sin(theta)+p.y*cos(theta))
+@inline rotate_z(p::PhysicalVector3D, theta::Float64) = PhysicalVector3D(p.x*cos(theta)-p.y*sin(theta), p.x*sin(theta)+p.y*cos(theta), p.z)
 
 "Computes the mean vector of an array of vectors"
 function mean(a::Array{PhysicalVector3D})
     len = length(a)
     p = PhysicalVector3D()
     for i in 1:len
-        p += a[i]
+        @inbounds p += a[i]
     end
     return p/len
 end
 
 function mean(a::Array{PhysicalVector2D})
     len = length(a)
-    p = PhysicalVector3D()
+    p = PhysicalVector2D()
     for i in 1:len
-        p += a[i]
+        @inbounds p += a[i]
     end
     return p/len
 end
@@ -215,7 +212,7 @@ function pconvert(a::Array{Float64,1})
     if length(a) == 3
         return PhysicalVector3D(a[1], a[2], a[3], u"m")
     elseif length(a) == 2
-        return PhysicalVector(a[1], a[2], u"m")
+        return PhysicalVector2D(a[1], a[2], u"m")
     else
         error("Not supported dimension!")
     end
@@ -225,7 +222,7 @@ function pconvert(a::Array{Float64,1}, u::Units)
     if length(a) == 3
         return PhysicalVector3D(a[1], a[2], a[3], u)
     elseif length(a) == 2
-        return PhysicalVector(a[1], a[2], u)
+        return PhysicalVector2D(a[1], a[2], u)
     else
         error("Not supported dimension!")
     end
@@ -242,7 +239,7 @@ function pconvert(a::Array{Float64,2}, u::Units)
     elseif row == 2
         p = rand(PhysicalVector2D,0)
         for i in 1:col
-            @inbounds append!(p, PhysicalVector3D(a[1,i], a[2,i], u))
+            @inbounds append!(p, PhysicalVector2D(a[1,i], a[2,i], u))
         end
         return p
     else
@@ -342,7 +339,10 @@ function center(a::Array{T,1}) where T <: AbstractPoint3D
 end
 
 ############      Physical Particles       ###########
-mutable struct PhysicalParticle2D
+abstract type AbstractParticle end
+abstract type AbstractParticle2D <: AbstractParticle end
+abstract type AbstractParticle3D <: AbstractParticle end
+mutable struct PhysicalParticle2D <: AbstractParticle
     Pos::Array{PhysicalVector2D,1}
     Vel::Array{PhysicalVector2D,1}
     Acc::Array{PhysicalVector2D,1}
@@ -352,7 +352,7 @@ mutable struct PhysicalParticle2D
     PhysicalParticle2D() = PhysicalParticle2D([],[],[],[],[],[])
 end
 
-mutable struct PhysicalParticle3D
+mutable struct PhysicalParticle3D <: AbstractParticle
     Pos::Array{PhysicalVector3D,1}
     Vel::Array{PhysicalVector3D,1}
     Acc::Array{PhysicalVector3D,1}
