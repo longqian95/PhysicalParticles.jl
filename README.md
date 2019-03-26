@@ -2,7 +2,7 @@
 
 Physical particle types for scientific simulation
 
-Referred to [GeometicalPredicates](https://github.com/JuliaGeometry/GeometricalPredicates.jl)
+Referred to [GeometicalPredicates.jl](https://github.com/JuliaGeometry/GeometricalPredicates.jl)
 
 ## Installation
 
@@ -16,16 +16,26 @@ or
 using Pkg; Pkg.add("PhysicalParticles")
 ```
 
+or
+
+```julia
+using Pkg; Pkg.add("https://github.com/islent/PhysicalParticles.jl")
+```
+
+To test the Package:
+```julia
+]test PhysicalParticles
+```
+
 ## Usage
 
 We reserve the normal point type for mathematical calculations,
-the only difference between it and PhysicalVector is The normal points do not need definition of units.
-For brief we only show examples for PhysicalVector.
+its only difference from PhysicalVector is that normal points do not need definition of units.
+To be brief we only show examples for PhysicalVector.
 
 ### Physical vectors
 
-In most cases you need to load `Unitful` and `UnitfulAstro` before using the `PhysicalParticles` package.
-They are not necessary if you only use the inner defined vector types for simulation such as `Position` and `Velocity`.
+`Unitful` and `UnitfulAstro` are not necessary if you only use the inner defined vector types for simulation such as `Position` and `Velocity`.
 
 1. Basic
 
@@ -38,7 +48,7 @@ They are not necessary if you only use the inner defined vector types for simula
     PhysicalVector3D(0.0 m, 0.0 m, 0.0 m)
     ```
 
-    Function `PhysicalVector` determines the dimension automatically, but it needs you to provide units:
+    Function `PhysicalVector` determines the dimension automatically, with units provided:
     ```julia
     julia> p = PhysicalVector(1.0,2.0,3.0,u"km")
     PhysicalVector3D(1.0 km, 2.0 km, 3.0 km)
