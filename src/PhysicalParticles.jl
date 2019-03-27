@@ -29,7 +29,10 @@ export
     Extent, Extent2D, Extent3D,
     PhysicalExtent, PhysicalExtent2D, PhysicalExtent3D,
 
+    # Serve for ISLENT project
     PhysicalConstant,
+    Header_Gadget2,
+    TreeNode, PhysicalTreeNode,
 
     getx, gety, getz,
 
@@ -580,7 +583,9 @@ end
 
 ############      Constants      ###########
 @constant(H, "Hubble constant", 74.03, BigFloat(74.03),
-          u"km/s/Mpc", 1.42, BigFloat(1.42), "Hubble Space Telescope 2019-03-18")
+            u"km/s/Mpc", 1.42, BigFloat(1.42), "Hubble Space Telescope 2019-03-18")
+@constant(ACC0, "Modified gravitational acceleration", 1.2e-8, BigFloat(1.2e-8),
+            u"cm/s^2", 0.0, BigFloat(0.0), "Milgrom 1983")
 struct PhysicalConstant
     c::Constant # light speed
     G::Constant # Newtonian constant of gravitation
@@ -591,6 +596,8 @@ struct PhysicalConstant
     m_p::Constant # Protron mass
     stefan_boltzmann::Constant # Stefan-Boltzmann constant
     H::Constant # Hubble constant
+
+    ACC0::Constant # Modified gravitational acceleration constant
 end
 PhysicalConstant() = PhysicalConstant(CODATA2014.c,
                                       CODATA2014.G,
@@ -600,7 +607,78 @@ PhysicalConstant() = PhysicalConstant(CODATA2014.c,
                                       CODATA2014.m_n,
                                       CODATA2014.m_p,
                                       CODATA2014.σ,
-                                      H)
+                                      H,
+                                      ACC0)
+
+mutable struct Header_Gadget2 # Refer to Gadget2 manual for more information
+    npart::Array{Int32,1} # gas, halo, disk, Bulge, star, blackholw
+    mass::Array{Float64,1}
+
+    time::Float64
+    redshift::Float64
+
+    flag_sfr::Int32
+    flag_feedback::Int32
+
+    npartTotal::Array{UInt32,1}
+
+    flag_cooling::Int32
+
+    num_files::Int32
+
+    BoxSize::Float64
+    Omega0::Float64
+    OmegaLambda::Float64
+    HubbleParam::Float64
+
+    flag_stellarage::Int32
+    flag_metals::Int32
+
+    npartTotalHighWord::Array{UInt32,1}
+
+    flag_entropy_instead_u::Int32
+    # fill 60 char
+
+    # Some
+end # Header_Gadget2
+
+Header_Gadget2() = Header_Gadget2([0,0,0,0,0,0],
+                                    [0.0,0.0,0.0,0.0,0.0,0.0],
+                                    0.0, 0.0, 0, 0,
+                                    [0,0,0,0,0,0],
+                                    0, 1, 0.0, 0.3, 0.7, 0.71, 0, 0,
+                                    [0,0,0,0,0,0], 0)
+
+mutable struct TreeNode
+    ID::Int64
+    Father::Int64
+    DaughterID::Array{Int64,1}
+    Center::Array{Float64,1}
+    SideLength::Float64
+    MaxSoft::Float64
+    SparseDaughterID::Array{Int64,1} # Walk in sparse tree to improve performance
+    IsLeaf::Bool
+    ParticleID::Int64 # Refers to the particle on this leaf.
+                      # One leaf can only take one particle. Set 0 if none or more than 1
+end # TreeNode
+
+mutable struct PhysicalTreeNode
+    ID::Int64
+    Father::Int64
+    DaughterID::Array{Int64,1}
+    Center::AbstractPoint
+    SideLength::Quantity
+    Mass::Quantity
+    MassCenter::AbstractPoint
+    MaxSoft::Quantity
+    SparseDaughterID::Array{Int64,1} # Walk in sparse tree to improve performance
+    PDM_Mass::Quantity
+    PDM_MassCenter::AbstractPoint
+    IsLeaf::Bool
+    ParticleID::Int64 # Refers to the particle on this leaf.
+                      # One leaf can only take one particle. Set 0 if none or more than 1
+end # PhysicalTreeNode
+
 
 ############      Peano-Hilbert       ###########
 # Copied from GeometicalPredicates.jl and referred to Gadget2

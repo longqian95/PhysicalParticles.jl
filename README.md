@@ -155,6 +155,10 @@ To be brief we only show examples for PhysicalVector.
             PhysicalParticle, PhysicalParticle2D, PhysicalParticle3D,
 
             ParticleType,
+            Extent, Extent2D, Extent3D,
+            PhysicalExtent, PhysicalExtent2D, PhysicalExtent3D,
+
+            PhysicalConstant,
 
             getx, gety, getz,
 
