@@ -28,6 +28,7 @@ export
     ParticleType,
     Extent, Extent2D, Extent3D,
     PhysicalExtent, PhysicalExtent2D, PhysicalExtent3D,
+    GasParticle, GasParticle2D, GasParticle3D,
 
     # Serve for ISLENT project
     PhysicalConstant,
@@ -527,6 +528,8 @@ mutable struct PhysicalParticle2D <: AbstractParticle2D
     ID::Int64
     Type::ParticleType
 end
+PhysicalParticle2D() = PhysicalParticle2D(PositionAstro(0.0,0.0), VelocityAstro(0.0,0.0), AccelerationAstro(0.0,0.0),
+                                            0.0u"Msun", 0, ParticleType(5))
 
 mutable struct PhysicalParticle3D <: AbstractParticle3D
     Pos::PhysicalVector3D
@@ -534,8 +537,10 @@ mutable struct PhysicalParticle3D <: AbstractParticle3D
     Acc::PhysicalVector3D
     Mass::Quantity
     ID::Int64
-    Type::Int64
+    Type::ParticleType
 end
+PhysicalParticle3D() = PhysicalParticle3D(PositionAstro(0.0,0.0,0.0), VelocityAstro(0.0,0.0,0.0), AccelerationAstro(0.0,0.0,0.0),
+                                            0.0u"Msun", 0, ParticleType(5))
 
 PhysicalParticle = PhysicalParticle3D
 
@@ -553,12 +558,17 @@ mutable struct GasParticle2D <: AbstractParticle2D
     RotVel::PhysicalVector2D
     DivVel::Quantity
     CurlVel::Quantity
-    dHsmlRho::Quantity
+    dHsmlRho::Float64
 
     Pressure::Quantity
     DtEntropy::Quantity
     MaxSignalVel::Quantity
 end
+GasParticle2D() = GasParticle2D(PositionAstro(0.0,0.0), VelocityAstro(0.0,0.0), AccelerationAstro(0.0,0.0),
+                                0.0u"Msun", 0,
+                                0.0u"J/K", 0.0u"Msun/kpc^2", 0.0u"kpc",
+                                VelocityAstro(0.0,0.0), 0.0u"Gyr^-1", 0.0u"Gyr^-1", 0.0,
+                                0.0u"N/m", 0.0u"J/K/s", 0.0u"kpc/s")
 
 mutable struct GasParticle3D <: AbstractParticle3D
     Pos::PhysicalVector3D
@@ -574,12 +584,19 @@ mutable struct GasParticle3D <: AbstractParticle3D
     RotVel::PhysicalVector3D
     DivVel::Quantity
     CurlVel::Quantity
-    dHsmlRho::Quantity
+    dHsmlRho::Float64
 
     Pressure::Quantity
     DtEntropy::Quantity
     MaxSignalVel::Quantity
 end
+GasParticle3D() = GasParticle3D(PositionAstro(0.0,0.0,0.0), VelocityAstro(0.0,0.0,0.0), AccelerationAstro(0.0,0.0,0.0),
+                                0.0u"Msun", 0,
+                                0.0u"J/K", 0.0u"Msun/kpc^3", 0.0u"kpc",
+                                VelocityAstro(0.0,0.0,0.0), 0.0u"Gyr^-1", 0.0u"Gyr^-1", 0.0,
+                                0.0u"N/m^2", 0.0u"J/K/s", 0.0u"kpc/s")
+
+GasParticle = GasParticle3D
 
 ############      Constants      ###########
 @constant(H, "Hubble constant", 74.03, BigFloat(74.03),
