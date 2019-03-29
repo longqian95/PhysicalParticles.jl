@@ -102,6 +102,12 @@ To be brief we only show examples for PhysicalVector.
 
     julia> p2 = p + v*t + 0.5a*t^2
     PhysicalVector3D(1.105 kpc, 2.105 kpc, 3.105 kpc)
+
+    julia> distance(Point(1.0,2.0), Point(3.0,4.0))
+    2.8284271247461903
+
+    julia> distance(Position(1.0,2.0,3.0), Position(4.0,5.0,6.0))
+    5.196152422706632 m
     ```
 
     Linear algebra is same with `PhysicalVector`
@@ -245,6 +251,64 @@ To be brief we only show examples for PhysicalVector.
     Relative standard uncertainty = (exact)
     Reference                     = Milgrom 1983
     ```
+
+7. Find the simulation box by
+    ```julia
+    Extent(a::Array{Point2D})
+    Extent(a::Array{Point3D})
+    PhysicalExtent(a::Array{PhysicalVector2D})
+    PhysicalExtent(a::Array{PhysicalVector3D})
+    ```
+    which return a struct like
+    ```julia
+    struct PhysicalExtent3D
+        xMin::Quantity
+        xMax::Quantity
+        yMin::Quantity
+        yMax::Quantity
+        zMin::Quantity
+        zMax::Quantity
+        SideLength::Quantity
+        Center::PhysicalVector3D
+    end
+    ```
+8. Use `Kd-tree` for nearest neighbour searching
+    1. First setup the tree by
+        ```julia
+        [1] kdtree_setup(a::Array{PhysicalParticle3D,1}; mode)
+        [2] kdtree_setup(a::Array{PhysicalParticle2D,1}; mode)
+        [3] kdtree_setup(a::Array{PhysicalVector3D,1}; mode)
+        [4] kdtree_setup(a::Array{PhysicalVector2D,1}; mode)
+        [5] kdtree_setup(a::Array{Point3D,1})
+        [6] kdtree_setup(a::Array{Point2D,1})
+        ```
+        where the default mode is "Astro"
+    2. K-nearest search
+        ```julia
+        [1] kdtree_k_search(kdtree::NearestNeighbors.KDTree, Point::Point2D, k::Int64; LeafSize, SortByDistance)
+        [2] kdtree_k_search(kdtree::NearestNeighbors.KDTree, Point::Point3D, k::Int64; LeafSize, SortByDistance)
+        [3] kdtree_k_search(kdtree::NearestNeighbors.KDTree, Point::PhysicalVector2D, k::Int64; LeafSize, SortByDistance, mode)
+        [4] kdtree_k_search(kdtree::NearestNeighbors.KDTree, Point::PhysicalVector3D, k::Int64; LeafSize, SortByDistance, mode)
+        [5] kdtree_k_search(kdtree::NearestNeighbors.KDTree, x::Float64, y::Float64, k::Int64; LeafSize, SortByDistance)
+        [6] kdtree_k_search(kdtree::NearestNeighbors.KDTree, x::Float64, y::Float64, z::Float64, k::Int64; LeafSize, SortByDistance)
+        [7] kdtree_k_search(kdtree::NearestNeighbors.KDTree, x::Quantity, y::Quantity, k::Int64; LeafSize, SortByDistance, mode)
+        [8] kdtree_k_search(kdtree::NearestNeighbors.KDTree, x::Quantity, y::Quantity, z::Quantity, k::Int64; LeafSize, SortByDistance, mode)
+        [9] kdtree_k_search(kdtree::NearestNeighbors.KDTree, Point::Array{Float64,1}, k::Int64; LeafSize, SortByDistance)
+        [10] kdtree_k_search(kdtree::NearestNeighbors.KDTree, Point::Array{Quantity,1}, k::Int64; LeafSize, SortByDistance, mode)
+        ```
+    3. Radius search
+        ```julia
+        [1] kdtree_radius_search(kdtree::NearestNeighbors.KDTree, Point::Point2D, Radius::Float64; LeafSize, SortByDistance)
+        [2] kdtree_radius_search(kdtree::NearestNeighbors.KDTree, Point::Point3D, Radius::Float64; LeafSize, SortByDistance)
+        [3] kdtree_radius_search(kdtree::NearestNeighbors.KDTree, Point::PhysicalVector2D, Radius::Quantity; LeafSize, SortByDistance, mode)
+        [4] kdtree_radius_search(kdtree::NearestNeighbors.KDTree, Point::PhysicalVector3D, Radius::Quantity; LeafSize, SortByDistance, mode)
+        [5] kdtree_radius_search(kdtree::NearestNeighbors.KDTree, x::Float64, y::Float64, Radius::Float64; LeafSize, SortByDistance)
+        [6] kdtree_radius_search(kdtree::NearestNeighbors.KDTree, x::Float64, y::Float64, z::Float64, Radius::Float64; LeafSize, SortByDistance)
+        [7] kdtree_radius_search(kdtree::NearestNeighbors.KDTree, x::Quantity, y::Quantity, Radius::Quantity; LeafSize, SortByDistance, mode)
+        [8] kdtree_radius_search(kdtree::NearestNeighbors.KDTree, x::Quantity, y::Quantity, z::Quantity, Radius::Quantity; LeafSize, SortByDistance, mode)
+        [9] kdtree_radius_search(kdtree::NearestNeighbors.KDTree, Point::Array{Float64,1}, Radius::Float64; LeafSize, SortByDistance)
+        [10] kdtree_radius_search(kdtree::NearestNeighbors.KDTree, Point::Array{Quantity,1}, Radius::Quantity; LeafSize, SortByDistance, mode)
+        ```
 
 4. Here are all of the exported types or functions:
 
