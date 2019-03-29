@@ -32,6 +32,8 @@ export
     Extent, Extent2D, Extent3D,
     PhysicalExtent, PhysicalExtent2D, PhysicalExtent3D,
 
+    Constants,
+
     # Serve for ISLENT project
     PhysicalConstant,
     Header_Gadget2,
@@ -691,6 +693,7 @@ PhysicalConstant() = PhysicalConstant(CODATA2014.c,
                                       CODATA2014.σ,
                                       H,
                                       ACC0)
+Constants = PhysicalConstant()
 
 mutable struct Header_Gadget2 # Refer to Gadget2 manual for more information
     npart::Array{Int32,1} # gas, halo, disk, Bulge, star, blackholw

@@ -139,6 +139,113 @@ To be brief we only show examples for PhysicalVector.
     0.21695371153286058 m
     ```
 
+4. Physical Particles
+    1. The default simulating particles are astronomical stars, whereas easy to be adapted in other simulation fields:
+        ```julia
+        julia> PhysicalParticle()
+        PhysicalParticle3D(PhysicalVector3D(0.0 kpc, 0.0 kpc, 0.0 kpc), PhysicalVector3D(0.0 kpc Gyr^-1, 0.0 kpc Gyr^-1, 0.0 kpc Gyr^-1), PhysicalVector3D(0.0 kpc Gyr^-2, 0.0 kpc Gyr^-2, 0.0 kpc Gyr^-2), 0.0 M⊙, 0, star::ParticleType = 5)
+        ```
+        The struct contains the most basic information in numerical simulation:
+        ```julia
+        mutable struct PhysicalParticle3D <: AbstractParticle3D
+            Pos::PhysicalVector3D
+            Vel::PhysicalVector3D
+            Acc::PhysicalVector3D
+            Mass::Quantity
+            ID::Int64
+            Type::ParticleType
+        end
+        ```
+        Particle types are defined in here:
+        ```julia
+        @enum ParticleType begin
+            gas = 1
+            halo = 2
+            disk = 3
+            bulge = 4
+            star = 5
+            blackhole = 6
+        end
+        ---------------------
+        julia> ParticleType(1)
+        gas::ParticleType = 1
+        ```
+    2. To cater for gas physics, there is a SPH (smoothed particle hydrodynamics) data type consistent with `Gadget2`
+        ```julia
+        mutable struct GasParticle2D <: AbstractParticle2D
+            Pos::PhysicalVector2D
+            Vel::PhysicalVector2D
+            Acc::PhysicalVector2D
+            Mass::Quantity
+            ID::Int64
+
+            Entropy::Quantity
+            Density::Quantity
+            Hsml::Quantity
+
+            Left::Float64
+            Right::Float64
+            NumNgbFound::Int64
+
+            RotVel::PhysicalVector2D
+            DivVel::Quantity
+            CurlVel::Quantity
+            dHsmlRho::Float64
+
+            Pressure::Quantity
+            DtEntropy::Quantity
+            MaxSignalVel::Quantity
+        end
+        ```
+        You could even find the `Gadget2` header here:
+        ```julia
+        julia> Header_Gadget2()
+        Header_Gadget2(Int32[0, 0, 0, 0, 0, 0], [0.0, 0.0, 0.0, 0.0, 0.0, 0.0], 0.0, 0.0, 0, 0, UInt32[0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000], 0, 1, 0.0, 0.3, 0.7, 0.71, 0, 0, UInt32[0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000], 0)
+        ```
+        And read `Gadget2` formatted snapshots by
+        ```julia
+        function read_gadget2(filename::String)
+        ```
+        which returns a tuple `(::Header_Gadget2, ::Array{PhysicalParticle,1}, ::Array{GasData,1})`
+        Later on we would support more particle types, so the tuple would be expanded then.
+        Now write a snapshot at will:
+        ```julia
+        function write_gadget2(filename::String, Header::Header_Gadget2, Particles::Array{PhysicalParticle,1}, SphData::Array{GasData,1})
+        ```
+5. Output an array of physical vectors or particles by simply calling function `write_ascii`
+6. There is a physical constant struct containing the most useful constants in astrophysical simulations, supported by [PhysicalConstants.jl](https://github.com/JuliaPhysics/PhysicalConstants.jl):
+    ```julia
+    struct PhysicalConstant
+        c::Constant # light speed
+        G::Constant # Newtonian constant of gravitation
+        h::Constant # Planck constant
+        e::Constant # Elementary charge
+        m_e::Constant # Electron mass
+        m_n::Constant # Neutron mass
+        m_p::Constant # Protron mass
+        stefan_boltzmann::Constant # Stefan-Boltzmann constant
+        H::Constant # Hubble constant
+
+        ACC0::Constant # Modified gravitational acceleration constant
+    end
+    ```
+    where H and ACC0 are user defined (not from CODATA2014):
+    ```julia
+    julia> Constants.H
+    Hubble constant (H)
+    Value                         = 74.03 km Mpc^-1 s^-1
+    Standard uncertainty          = 1.42 km Mpc^-1 s^-1
+    Relative standard uncertainty = 0.019
+    Reference                     = Hubble Space Telescope 2019-03-18
+
+    julia> Constants.ACC0
+    Modified gravitational acceleration (ACC0)
+    Value                         = 1.2e-8 cm s^-2
+    Standard uncertainty          = (exact)
+    Relative standard uncertainty = (exact)
+    Reference                     = Milgrom 1983
+    ```
+
 4. Here are all of the exported types or functions:
 
     ```julia
