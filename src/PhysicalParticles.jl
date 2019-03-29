@@ -61,7 +61,7 @@ export
 
     # file I/O
     write_ascii, read_ascii,
-    write_gadget, read_gadget
+    write_gadget2, read_gadget2
 
 
 abstract type AbstractPoint end
@@ -656,9 +656,7 @@ mutable struct GasData3D
     DtEntropy::Quantity
     MaxSignalVel::Quantity
 end
-GasData3D() = GasData3D(PositionAstro(0.0,0.0,0.0), VelocityAstro(0.0,0.0,0.0), AccelerationAstro(0.0,0.0,0.0),
-                        0.0u"Msun", 0,
-                        0.0u"J/K", 0.0u"Msun/kpc^3", 0.0u"kpc",
+GasData3D() = GasData3D(0.0u"J/K", 0.0u"Msun/kpc^3", 0.0u"kpc",
                         0.0, 0.0, 0,
                         VelocityAstro(0.0,0.0,0.0), 0.0u"Gyr^-1", 0.0u"Gyr^-1", 0.0,
                         0.0u"N/m^2", 0.0u"J/K/s", 0.0u"kpc/s")
