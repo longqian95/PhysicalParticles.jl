@@ -43,61 +43,58 @@ end
                                         VelocityAstro(0.0,0.0,0.0), 0.0u"Gyr^-1", 0.0u"Gyr^-1", 0.0,
                                         0.0u"N/m^2", 0.0u"J/K/s", 0.0u"kpc/s")
 
-@everywhere function move(a::DArray)
-    for p in a
-        p.Pos += p.Vel * 1.0u"Gyr"
-    end
-end
-
-@everywhere function move(a::UniversalParticle)
-    for p in a
-        if p.Type == ParticleType(5)
+@everywhere function move(p::UniversalParticle, n::Int64=100)
+    if p.Type == ParticleType(5)
+        for i in 1:n
             p.Pos += p.Vel * 1.0u"Gyr"
-        elseif p.Type == ParticleType(1)
+        end
+    elseif p.Type == ParticleType(1)
+        for i in 1:n
             p.Pos += p.Vel * 1.0u"Gyr"
         end
     end
 end
 
-@everywhere function move(a::Array{AbstractParticle3D})
-    for p in a
-        if typeof(p) == PhysicalParticle3D
-            p.Pos += p.Vel * 1.0u"Gyr"
-        elseif typeof(p) == GasParticle3D
+@everywhere function move(p::AbstractParticle3D, n::Int64=100)
+    if typeof(p) == PhysicalParticle3D
+        for i in 1:n
             p.Pos += p.Vel * 1.0u"Gyr"
         end
-
+    elseif typeof(p) == GasParticle3D
+        for i in 1:n
+            p.Pos += p.Vel * 1.0u"Gyr"
+        end
     end
 end
 
 ##### 1 Different Arrays for different particle types #####
 
-function f1()
+function f1(n::Int64)
     array1 = ParticleData(fill(PhysicalParticle3D(),NumTotal), fill(GasParticle3D(),NumGas))
     Darray1_particle = distribute(array1.particles)
     Darray1_gas = distribute(array1.gases)
-    move(Darray1_particle)
-    move(Darray1_gas)
+    move.(Darray1_particle, n)
+    move.(Darray1_gas, n)
 end
 t1 = @benchmarkable f1()
 test1() = run(t1, samples = 10)
 
 ##### 2 Universal particle type #####
 
-function f2()
+function f2(n::Int64)
     array2 = fill(UniversalParticle(), NumTotal)
     Darray2 = distribute(array2)
-    move(Darray2)
+    move.(Darray2, n)
 end
 t2 = @benchmarkable f2()
 test2() = run(t2, samples = 10)
 
 ##### 3 Abstract type #####
 
-function f3()
+function f3(n::Int64)
     array3 = [fill(PhysicalParticle3D(),NumTotal); fill(GasParticle3D(),NumGas)]
     Darray3 = distribute(array3)
-    move(Darray3)
+    move.(Darray3, n)
 end
 t3 = @benchmarkable f3()
 test3() = run(t3, samples = 10)
