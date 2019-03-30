@@ -11,6 +11,7 @@ import Unitful: Units
 import Base: +,-,*,/,zero,length,iterate,
             rand
 import LinearAlgebra: norm, normalize, dot, cross
+import Statistics: mean, std, var
 import PhysicalConstants: CODATA2014, Constant, @constant
 
 export
