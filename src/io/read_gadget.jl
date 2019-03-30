@@ -106,15 +106,15 @@ function read_gadget2(filename::String)
     end
 
     count_temp = 0
-    for i in 1:6
-        for k in (count_temp+1):(count_temp+Header.npart[i])
-            if Header.mass[i] == 0.0
+    for type in 1:6
+        for i in (count_temp+1):(count_temp+Header.npart[type])
+            if Header.mass[type] == 0.0
                 Particles[i].Mass = read(f, Float32)*u"Msun"
             else
-                Particles[i].Mass = Header.mass[i]*u"Msun"
+                Particles[i].Mass = Header.mass[type]*u"Msun"
             end
         end
-        count_temp += Header.npart[i]
+        count_temp += Header.npart[type]
     end
 
     if sum(Header.mass)==0.0
