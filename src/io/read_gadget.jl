@@ -49,6 +49,16 @@ function read_gadget2(filename::String)
         quit()
     end
 
+    # Assign particle types
+
+    count_temp = 0
+    for type in 1:6
+        for i in (count_temp+1):(count_temp+Header.npart[type])
+            Particles[i].Type = ParticleType(type)
+        end
+        count_temp += Header.npart[type]
+    end
+
     # Read Position Block
     temp1 = read(f, Int32)
     for i in 1:NumTotal
@@ -117,7 +127,7 @@ function read_gadget2(filename::String)
 
     # Read Gas Internal Energy Block
     NumGas = Header.npart[1]
-    SphData = fill(GasData(), NumGas)
+    SphData = [GasData() for i=1:NumGas]
     if NumGas>0
         # Read Entropy
         temp1 = read(f, Int32)
