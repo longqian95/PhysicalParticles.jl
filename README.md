@@ -180,16 +180,16 @@ To be brief we only show examples for PhysicalVector.
         Particle types are defined in here:
         ```julia
         @enum ParticleType begin
-            gas = 1
-            halo = 2
-            disk = 3
-            bulge = 4
-            star = 5
-            blackhole = 6
+            GAS = 1
+            HALO = 2
+            DISK = 3
+            BULGE = 4
+            STAR = 5
+            BLACKHOLE = 6
         end
         ---------------------
         julia> ParticleType(1)
-        gas::ParticleType = 1
+        GAS::ParticleType = 1
         ```
     2. To cater for gas physics, there is a SPH (smoothed particle hydrodynamics) data type consistent with `Gadget2`
         ```julia
@@ -266,6 +266,14 @@ To be brief we only show examples for PhysicalVector.
 
             # Some
         end # Header_Gadget2
+        ```
+    3. Convert physical vectors to dimensionless normal points
+        ```julia
+        julia> a = Position()
+        PhysicalVector3D(0.0 m, 0.0 m, 0.0 m)
+
+        julia> Point(a)
+        Point3D(0.0, 0.0, 0.0)
         ```
 5. Output an array of physical vectors or particles by simply calling function `write_ascii`
 6. There is a physical constant struct containing the most useful constants in astrophysical simulations, supported by [PhysicalConstants.jl](https://github.com/JuliaPhysics/PhysicalConstants.jl):

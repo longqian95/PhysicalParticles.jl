@@ -267,6 +267,14 @@ AccelerationAstro(x::Real, y::Real, z::Real, u::Units=u"kpc/Gyr^2") = PhysicalVe
 @inline zero(p::AbstractPoint3D) = PhysicalVector3D(p.x*0.0, p.y*0.0, p.z*0.0)
 @inline cross(p1::AbstractPoint3D, p2::AbstractPoint3D) = Point3D(ustrip(p1.y*p2.z-p1.z*p2.y), ustrip(p1.z*p2.x-p1.x*p2.z), ustrip(p1.x*p2.y-p1.y*p2.x))
 
+############      Convert physical vectors to dimensionless normal points       ###########
+
+Point(p::PhysicalVector2D) = Point2D(ustrip(p.x), ustrip(p.y))
+Point2D(p::PhysicalVector2D) = Point2D(ustrip(p.x), ustrip(p.y))
+
+Point(p::PhysicalVector3D) = Point3D(ustrip(p.x), ustrip(p.y), ustrip(p.z))
+Point3D(p::PhysicalVector3D) = Point3D(ustrip(p.x), ustrip(p.y), ustrip(p.z))
+
 ############      Linear Algebra       ###########
 @inline normalize(p::AbstractPoint2D) = (n = ustrip(norm(p)); return PhysicalVector(p.x/n, p.y/n))
 @inline normalize(p::AbstractPoint3D) = (n = ustrip(norm(p)); return PhysicalVector(p.x/n, p.y/n, p.z/n))
