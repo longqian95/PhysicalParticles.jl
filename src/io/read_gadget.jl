@@ -38,7 +38,7 @@ function read_gadget2(filename::String)
     Header.flag_entropy_instead_u = read(f, Int32)
 
     NumTotal = sum(Header.npart)
-    Particles = fill(PhysicalParticle(), NumTotal)
+    Particles = [PhysicalParticle() for i=1:NumTotal]
 
     for i = 1:60
         read(f, 1)
