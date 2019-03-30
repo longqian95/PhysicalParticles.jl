@@ -173,6 +173,7 @@ function mass_center(a::Array{T}) where T <: AbstractParticle
     sum_mass = a[1].Mass
     sum_center = a[1].Pos * a[1].Mass
     for i in 2:length(a)
+        sum_mass += a[i].Mass
         sum_center += a[i].Pos * a[i].Mass
     end
 
