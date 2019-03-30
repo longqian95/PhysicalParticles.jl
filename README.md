@@ -48,6 +48,17 @@ To be brief we only show examples for PhysicalVector.
     PhysicalVector3D(0.0 m, 0.0 m, 0.0 m)
     ```
 
+    For dimension safty, the constructor returns a normal point if you pass dimensionless values to it:
+    ```julia
+    julia> PhysicalVector(1.0,2.0,3.0)
+    Point3D(1.0, 2.0, 3.0)
+    ```
+    whereas the user-friendly types would not:
+    ```julia
+    julia> Position(2.0,3.0,4.0)
+    PhysicalVector3D(2.0 m, 3.0 m, 4.0 m)
+    ```
+
     Function `PhysicalVector` determines the dimension automatically, with units provided:
     ```julia
     julia> p = PhysicalVector(1.0,2.0,3.0,u"km")
@@ -111,6 +122,10 @@ To be brief we only show examples for PhysicalVector.
     ```
 
     Linear algebra is same with `PhysicalVector`
+
+    For dimension safty, the cross product of any two vectors are dimensionless:
+    ```julia
+    ```
 
 3. Manipulate arrays
 
@@ -218,6 +233,40 @@ To be brief we only show examples for PhysicalVector.
         ```julia
         function write_gadget2(filename::String, Header::Header_Gadget2, Particles::Array{PhysicalParticle,1}, SphData::Array{GasData,1})
         ```
+        The header is defined as
+        ```julia
+        mutable struct Header_Gadget2 # Refer to Gadget2 manual for more information
+            npart::Array{Int32,1} # gas, halo, disk, Bulge, star, blackholw
+            mass::Array{Float64,1}
+
+            time::Float64
+            redshift::Float64
+
+            flag_sfr::Int32
+            flag_feedback::Int32
+
+            npartTotal::Array{UInt32,1}
+
+            flag_cooling::Int32
+
+            num_files::Int32
+
+            BoxSize::Float64
+            Omega0::Float64
+            OmegaLambda::Float64
+            HubbleParam::Float64
+
+            flag_stellarage::Int32
+            flag_metals::Int32
+
+            npartTotalHighWord::Array{UInt32,1}
+
+            flag_entropy_instead_u::Int32
+            # fill 60 char
+
+            # Some
+        end # Header_Gadget2
+        ```
 5. Output an array of physical vectors or particles by simply calling function `write_ascii`
 6. There is a physical constant struct containing the most useful constants in astrophysical simulations, supported by [PhysicalConstants.jl](https://github.com/JuliaPhysics/PhysicalConstants.jl):
     ```julia
@@ -317,41 +366,59 @@ To be brief we only show examples for PhysicalVector.
         AbstractPoint,
             AbstractPoint2D,
             AbstractPoint3D,
-            Point, Point2D, Point3D,
-            Position, Velocity, Acceleration,
-            PositionAstro, VelocityAstro, AccelerationAstro,
-            PhysicalVector, PhysicalVector2D, PhysicalVector3D,
+        Point, Point2D, Point3D,
+        Position, Velocity, Acceleration,
+        PositionAstro, VelocityAstro, AccelerationAstro,
+        PhysicalVector, PhysicalVector2D, PhysicalVector3D,
 
-            AbstractParticle, AbstractParticle2D, AbstractParticle3D,
-            PhysicalParticle, PhysicalParticle2D, PhysicalParticle3D,
+        AbstractParticle, AbstractParticle2D, AbstractParticle3D,
+        PhysicalParticle, PhysicalParticle2D, PhysicalParticle3D,
 
-            ParticleType,
-            Extent, Extent2D, Extent3D,
-            PhysicalExtent, PhysicalExtent2D, PhysicalExtent3D,
+        GasParticle, GasParticle2D, GasParticle3D,
+        GasData, GasData2D, GasData3D,
 
-            PhysicalConstant,
+        ParticleType,
+        GAS, HALO, DISK, BULGE, STAR, BLACKHOLE,
 
-            getx, gety, getz,
+        Extent, Extent2D, Extent3D,
+        PhysicalExtent, PhysicalExtent2D, PhysicalExtent3D,
 
-            +,-,*,/,zero,length,iterate,
+        Constants,
 
-            # Linear Algebra
-            norm, normalize, dot, cross,
-            rotate, rotate_x, rotate_y, rotate_z,
+        # Serve for ISLENT project
+        PhysicalConstant,
+        Header_Gadget2,
+        TreeNode, PhysicalTreeNode,
 
-            # Simulation Box
-            mean,
-            min_x, min_y, min_z,
-            max_x, max_y, max_z,
-            min_coord, max_coord,
-            center_x, center_y, center_z,
-            center,
+        getx, gety, getz,
 
-            # Convert array to points
-            pconvert, npconvert,
+        +,-,*,/,zero,length,iterate,
 
-            # Peano-Hilbert algorithms
-            peanokey, hilbertsort!, mssort!
+        # Linear Algebra
+        norm, normalize, dot, cross,
+        rotate, rotate_x, rotate_y, rotate_z,
+        distance,
+
+        # Simulation Box
+        mean,
+        min_x, min_y, min_z,
+        max_x, max_y, max_z,
+        min_coord, max_coord,
+        center_x, center_y, center_z,
+        center, mass_center,
+
+        # Convert array to points
+        pconvert, npconvert,
+
+        # Peano-Hilbert algorithms
+        peanokey, hilbertsort!, mssort!,
+
+        # file I/O
+        write_ascii, read_ascii,
+        write_gadget2, read_gadget2,
+
+        # Numerics
+        kdtree_setup, kdtree_k_search, kdtree_radius_search
     ```
 
 ### Physical Particles

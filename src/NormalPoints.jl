@@ -29,35 +29,15 @@ Point(x::Real, y::Real, z::Real) = Point3D(x, y, z)
 
 #######   Basic mathematics   #######
 
-# 2D
-@inline +(p1::Point2D, p2::Point2D) = Point2D(p1.x+p2.x, p1.y+p2.y)
-@inline -(p1::Point2D, p2::Point2D) = Point2D(p1.x-p2.x, p1.y-p2.y)
-@inline *(p1::Point2D, p2::Point2D) = p1.x*p2.x + p1.y*p2.y
 @inline +(p1::Point2D, a::Real) = Point2D(p1.x+a, p1.y+a)
 @inline -(p1::Point2D, a::Real) = Point2D(p1.x-a, p1.y-a)
-@inline *(p1::Point2D, a::Real) = Point2D(p1.x*a, p1.y*a)
-@inline /(p1::Point2D, a::Real) = Point2D(p1.x/a, p1.y/a)
 @inline +(a::Real, p::Point2D) = Point2D(a+p.x, a+p.y)
 @inline -(a::Real, p::Point2D) = Point2D(a-p.x, a-p.y)
-@inline *(a::Real, p::Point2D) = Point2D(a*p.x, a*p.y)
-@inline dot(p1::Point2D, p2::Point2D) = p1.x*p2.x + p1.y*p2.y
-@inline zero(p::Point2D) = Point2D(p.x*0.0, p.y*0.0)
 
-# 3D
-@inline +(p1::Point3D, p2::Point3D) = Point3D(p1.x+p2.x, p1.y+p2.y, p1.z+p2.z)
-@inline -(p1::Point3D, p2::Point3D) = Point3D(p1.x-p2.x, p1.y-p2.y, p1.z-p2.z)
-@inline *(p1::Point3D, p2::Point3D) = p1.x*p2.x + p1.y*p2.y + p1.z*p2.z
-@inline *(p1::Point3D, a::Real) = Point3D(p1.x*a, p1.y*a, p1.z*a)
 @inline +(p1::Point3D, a::Real) = Point3D(p1.x+a, p1.y+a, p1.z+a)
 @inline -(p1::Point3D, a::Real) = Point3D(p1.x-a, p1.y-a, p1.z-a)
-@inline *(p1::Point3D, a::Real) = Point3D(p1.x*a, p1.y*a, p1.z*a)
-@inline /(p1::Point3D, a::Real) = Point3D(p1.x/a, p1.y/a, p1.z/a)
 @inline +(a::Real, p::Point3D) = Point3D(a+p.x, a+p.y, a+p.z)
 @inline -(a::Real, p::Point3D) = Point3D(a-p.x, a-p.y, a-p.z)
-@inline *(a::Real, p::Point3D) = Point3D(a*p.x, a*p.y, a*p.z)
-@inline dot(p1::Point3D, p2::Point3D) = p1.x*p2.x + p1.y*p2.y + p1.z*p2.z
-@inline zero(p::Point3D) = Point3D(p.x*0.0, p.y*0.0, p.z*0.0)
-@inline cross(p1::Point3D, p2::Point3D) = Point3D(p1.y*p2.z-p1.z*p2.y, p1.z*p2.x-p1.x*p2.z, p1.x*p2.y-p1.y*p2.x)
 
 ############      Linear Algebra       ###########
 
@@ -72,36 +52,7 @@ Point(x::Real, y::Real, z::Real) = Point3D(x, y, z)
 @inline rotate_y(p::Point3D, theta::Float64) = Point3D(p.x*cos(theta)+p.z*sin(theta), p.y, -p.x*sin(theta)+p.z*cos(theta))
 @inline rotate_z(p::Point3D, theta::Float64) = Point3D(p.x*cos(theta)-p.y*sin(theta), p.x*sin(theta)+p.y*cos(theta), p.z)
 
-"Computes the mean vector of an array of vectors"
-function mean(a::Array{Point3D})
-    len = length(a)
-    p = Point3D()
-    for i in 1:len
-        p += a[i]
-    end
-    return p/len
-end
-
-function mean(a::Array{Point2D})
-    len = length(a)
-    p = Point2D()
-    for i in 1:len
-        p += a[i]
-    end
-    return p/len
-end
-
 "Converts Number array to Point array"
-function npconvert(a::Array{Float64,1})
-    if length(a) == 3
-        return Point3D(a[1], a[2], a[3])
-    elseif length(a) == 2
-        return Point2D(a[1], a[2])
-    else
-        error("Not supported dimension!")
-    end
-end
-
 function npconvert(a::Array{Float64,1})
     if length(a) == 3
         return Point3D(a[1], a[2], a[3])
