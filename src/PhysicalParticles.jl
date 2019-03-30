@@ -200,30 +200,36 @@ PhysicalVector(x::Real, y::Real, z::Real) = Point3D(x, y, z)
 Position(u::Units=u"m") = PhysicalVector3D(0.0u, 0.0u, 0.0u)
 Position(x::Real, y::Real, u::Units=u"m") = PhysicalVector2D(x*u, y*u)
 Position(x::Real, y::Real, z::Real, u::Units=u"m") = PhysicalVector3D(x*u, y*u, z*u)
+Position(x::Quantity, y::Quantity, z::Quantity) = PhysicalVector3D(x, y, z)
 
 PositionAstro(u::Units=u"kpc") = PhysicalVector3D(0.0u, 0.0u, 0.0u)
 PositionAstro(x::Real, y::Real, u::Units=u"kpc") = PhysicalVector2D(x*u, y*u)
 PositionAstro(x::Real, y::Real, z::Real, u::Units=u"kpc") = PhysicalVector3D(x*u, y*u, z*u)
+PositionAstro(x::Quantity, y::Quantity, z::Quantity) = PhysicalVector3D(x, y, z)
 
 ############      Position       ###########
 
 Velocity(u::Units=u"m/s") = PhysicalVector3D(0.0u, 0.0u, 0.0u)
 Velocity(x::Real, y::Real, u::Units=u"m/s") = PhysicalVector2D(x*u, y*u)
 Velocity(x::Real, y::Real, z::Real, u::Units=u"m/s") = PhysicalVector3D(x*u, y*u, z*u)
+Velocity(x::Quantity, y::Quantity, z::Quantity) = PhysicalVector3D(x, y, z)
 
 VelocityAstro(u::Units=u"kpc/Gyr") = PhysicalVector3D(0.0u, 0.0u, 0.0u)
 VelocityAstro(x::Real, y::Real, u::Units=u"kpc/Gyr") = PhysicalVector2D(x*u, y*u)
 VelocityAstro(x::Real, y::Real, z::Real, u::Units=u"kpc/Gyr") = PhysicalVector3D(x*u, y*u, z*u)
+VelocityAstro(x::Quantity, y::Quantity, z::Quantity) = PhysicalVector3D(x, y, z)
 
 ############      Acceleration       ###########
 
 Acceleration(u::Units=u"m/s^2") = PhysicalVector3D(0.0u, 0.0u, 0.0u)
 Acceleration(x::Real, y::Real, u::Units=u"m/s^2") = PhysicalVector2D(x*u, y*u)
 Acceleration(x::Real, y::Real, z::Real, u::Units=u"m/s^2") = PhysicalVector3D(x*u, y*u, z*u)
+Acceleration(x::Quantity, y::Quantity, z::Quantity) = PhysicalVector3D(x, y, z)
 
 AccelerationAstro(u::Units=u"kpc/Gyr^2") = PhysicalVector3D(0.0u, 0.0u, 0.0u)
 AccelerationAstro(x::Real, y::Real, u::Units=u"kpc/Gyr^2") = PhysicalVector2D(x*u, y*u)
 AccelerationAstro(x::Real, y::Real, z::Real, u::Units=u"kpc/Gyr^2") = PhysicalVector3D(x*u, y*u, z*u)
+AccelerationAstro(x::Quantity, y::Quantity, z::Quantity) = PhysicalVector3D(x, y, z)
 
 ############      Basic mathematics       ###########
 @inline length(p::T) where T <: AbstractPoint = 1
